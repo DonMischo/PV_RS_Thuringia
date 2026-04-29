@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberMath // Neo-Thuringia Sector // Klasse 10</title>
+<style>
+:root {
+  --bg: #02020a; --panel: #0a0a1a; --panel-2: #111128; --text: #e0e0ff; --text-dim: #8899aa;
+  --accent-cyan: #00f0ff; --accent-magenta: #ff00aa; --accent-green: #00ff66; --accent-yellow: #ffee00;
+  --accent-purple: #aa55ff; --accent-red: #ff3333; --accent-orange: #ff8800; --accent-blue: #3388ff;
+  --border: rgba(0,240,255,0.3); --glow-cyan: 0 0 10px rgba(0,240,255,0.5), 0 0 20px rgba(0,240,255,0.2);
+  --font-mono: 'Courier New', Courier, monospace; --font-ui: 'Segoe UI', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; background: linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+.glitch { position: relative; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 2px; }
+.glitch::before, .glitch::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--bg); }
+.glitch::before { left: 2px; text-shadow: -1px 0 var(--accent-magenta); clip: rect(24px, 550px, 90px, 0); animation: glitch-anim-1 3s infinite linear alternate-reverse; }
+.glitch::after { left: -2px; text-shadow: -1px 0 var(--accent-cyan); clip: rect(85px, 550px, 140px, 0); animation: glitch-anim-2 2.5s infinite linear alternate-reverse; }
+@keyframes glitch-anim-1 { 0% { clip: rect(20px, 9999px, 50px, 0); } 20% { clip: rect(80px, 9999px, 110px, 0); } 40% { clip: rect(10px, 9999px, 60px, 0); } 60% { clip: rect(50px, 9999px, 90px, 0); } 80% { clip: rect(30px, 9999px, 70px, 0); } 100% { clip: rect(60px, 9999px, 100px, 0); } }
+@keyframes glitch-anim-2 { 0% { clip: rect(60px, 9999px, 90px, 0); } 20% { clip: rect(10px, 9999px, 40px, 0); } 40% { clip: rect(70px, 9999px, 100px, 0); } 60% { clip: rect(30px, 9999px, 60px, 0); } 80% { clip: rect(90px, 9999px, 120px, 0); } 100% { clip: rect(20px, 9999px, 50px, 0); } }
+.container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 20px; }
+.screen { display: none; }
+.screen.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
+.topic-card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+.topic-card:hover { transform: translateY(-4px); box-shadow: var(--glow-cyan); border-color: var(--accent-cyan); }
+.topic-card.completed::after { content: '\2713'; position: absolute; top: 8px; right: 12px; color: var(--accent-green); font-size: 1.4rem; font-weight: bold; }
+.topic-card .t-icon { font-family: var(--font-mono); font-size: 2rem; font-weight: bold; margin-bottom: 8px; }
+.topic-card .t-name { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.topic-card .t-meta { font-size: 0.75rem; color: var(--text-dim); }
+.topic-card .progress-bar { margin-top: 10px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.topic-card .progress-fill { height: 100%; background: var(--accent-green); transition: width 0.3s; }
+.exercise-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-top: 20px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.ex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.ex-title { font-family: var(--font-mono); font-size: 1.1rem; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px; }
+.ex-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 4px; background: rgba(0,240,255,0.1); border: 1px solid rgba(0,240,255,0.3); color: var(--accent-cyan); font-family: var(--font-mono); }
+.problem-box { background: var(--panel-2); border-left: 3px solid var(--accent-cyan); padding: 18px 20px; border-radius: 0 8px 8px 0; margin-bottom: 20px; line-height: 1.6; font-size: 1rem; }
+.problem-box strong { color: var(--accent-yellow); }
+.formula { font-family: var(--font-mono); color: var(--accent-yellow); letter-spacing: 0.3px; }
+.formula sup { font-size: 0.75em; vertical-align: super; line-height: 0; }
+.formula sub { font-size: 0.75em; vertical-align: sub; line-height: 0; }
+.input-group { margin-bottom: 16px; }
+.input-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 6px; letter-spacing: 0.5px; }
+input[type="text"], input[type="number"] { width: 100%; max-width: 320px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 14px; color: var(--text); font-family: var(--font-mono); font-size: 1rem; outline: none; transition: border-color 0.2s; }
+input[type="text"]:focus, input[type="number"]:focus { border-color: var(--accent-cyan); box-shadow: 0 0 8px rgba(0,240,255,0.2); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 6px; border: 1px solid transparent; font-family: var(--font-ui); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: var(--panel-2); color: var(--text); }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, rgba(0,240,255,0.15), rgba(0,240,255,0.05)); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.btn-primary:hover { background: linear-gradient(135deg, rgba(0,240,255,0.25), rgba(0,240,255,0.1)); box-shadow: var(--glow-cyan); }
+.btn-hint { background: linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,170,0,0.05)); border-color: var(--accent-orange); color: var(--accent-orange); }
+.btn-hint:hover { box-shadow: 0 0 10px rgba(255,136,0,0.3); }
+.btn-solution { background: linear-gradient(135deg, rgba(170,85,255,0.15), rgba(170,85,255,0.05)); border-color: var(--accent-purple); color: var(--accent-purple); }
+.btn-solution:hover { box-shadow: 0 0 10px rgba(170,85,255,0.3); }
+.btn-danger { background: linear-gradient(135deg, rgba(255,51,51,0.15), rgba(255,51,51,0.05)); border-color: var(--accent-red); color: var(--accent-red); }
+.feedback { margin-top: 12px; padding: 10px 14px; border-radius: 6px; font-weight: 600; font-size: 0.9rem; display: none; }
+.feedback.show { display: block; animation: popIn 0.3s ease; }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.feedback.ok { background: rgba(0,255,102,0.1); border: 1px solid var(--accent-green); color: var(--accent-green); }
+.feedback.err { background: rgba(255,51,51,0.1); border: 1px solid var(--accent-red); color: var(--accent-red); }
+.hints-box { margin-top: 16px; padding: 16px; background: rgba(255,136,0,0.05); border: 1px dashed rgba(255,136,0,0.3); border-radius: 8px; display: none; }
+.hints-box.show { display: block; }
+.hints-box h4 { margin: 0 0 10px 0; color: var(--accent-orange); font-family: var(--font-mono); font-size: 0.85rem; text-transform: uppercase; }
+.hint-item { margin-bottom: 8px; padding: 8px 12px; background: rgba(0,0,0,0.2); border-radius: 4px; font-size: 0.9rem; color: var(--text-dim); border-left: 2px solid var(--accent-orange); }
+.hint-item.revealed { color: var(--text); border-left-color: var(--accent-yellow); }
+.solution-overlay { position: fixed; inset: 0; background: rgba(2,2,10,0.92); z-index: 100; display: none; overflow-y: auto; padding: 40px 20px; }
+.solution-overlay.show { display: block; }
+.solution-content { max-width: 800px; margin: 0 auto; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: var(--glow-cyan); }
+.solution-content h2 { font-family: var(--font-mono); color: var(--accent-cyan); margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+.sol-step { margin-bottom: 16px; padding-left: 16px; border-left: 2px solid var(--accent-purple); }
+.sol-step .step-num { color: var(--accent-purple); font-family: var(--font-mono); font-weight: bold; font-size: 0.8rem; display: block; margin-bottom: 4px; }
+.sol-comment { font-style: italic; color: var(--text-dim); font-size: 0.85rem; margin-top: 4px; }
+.nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; flex-wrap: wrap; gap: 10px; }
+.progress-tracker { display: flex; gap: 6px; margin-bottom: 20px; }
+.progress-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.3s; }
+.progress-dot.active { background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
+.progress-dot.done { background: var(--accent-green); }
+@media print { body::before { display: none; } .no-print { display: none !important; } .solution-overlay { display: block !important; position: static; background: white; padding: 0; } .solution-content { box-shadow: none; border: 1px solid #ccc; color: #000; background: #fff; } }
+@media (max-width: 600px) { .topic-grid { grid-template-columns: 1fr; } .exercise-panel { padding: 18px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header style="text-align:center; margin-bottom: 30px;">
+    <h1 class="glitch" data-text="CYBERMATH // NEO-THURINGIA">CYBERMATH // NEO-THURINGIA</h1>
+    <p style="color:var(--text-dim); font-size:0.9rem; margin-top:8px;">Sector 10-R // Realschule // Wahlaufgaben-Training // Klasse 10</p>
+  </header>
+  <div id="screen-topics" class="screen active">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h2 style="font-family:var(--font-mono); color:var(--accent-cyan); font-size:1.1rem;">\> SELECT_SECURITY_LAYER</h2>
+      <button class="btn btn-danger no-print" onclick="resetAllProgress()" style="font-size:0.75rem;">\> SYSTEM.RESET</button>
+    </div>
+    <p style="color:var(--text-dim); font-size:0.85rem; margin-bottom:20px;">Wähle ein Thema (Security Layer). Entschlüssele alle 5 Nodes pro Layer, um das System zu durchdringen.</p>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+  <div id="screen-exercise" class="screen">
+    <div class="nav-bar no-print">
+      <button class="btn" onclick="showTopics()">\&lt; ZURÜCK ZU LAYERS</button>
+      <div id="ex-topic-badge" class="ex-badge"></div>
+    </div>
+    <div class="progress-tracker" id="ex-progress"></div>
+    <div class="exercise-panel">
+      <div class="ex-header">
+        <div class="ex-title" id="ex-title"></div>
+        <div class="ex-badge" id="ex-badge"></div>
+      </div>
+      <div class="problem-box" id="ex-problem"></div>
+      <div id="ex-inputs"></div>
+      <div class="hints-box" id="ex-hints"></div>
+      <div class="feedback" id="ex-feedback"></div>
+      <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;" class="no-print">
+        <button class="btn btn-primary" onclick="checkAnswer()">\> PRÜFEN</button>
+        <button class="btn btn-hint" onclick="showNextHint()">\> HINT (+<span id="hint-count">0</span>/3)</button>
+        <button class="btn btn-solution" onclick="showSolution()">\> LÖSUNG ANZEIGEN</button>
+      </div>
+    </div>
+  </div>
+  <div id="screen-complete" class="screen">
+    <div class="exercise-panel" style="text-align:center;">
+      <div style="font-size:3rem; margin-bottom:10px;">Ἴ6</div>
+      <h2 style="font-family:var(--font-mono); color:var(--accent-green);">LAYER DECRYPTED</h2>
+      <p style="color:var(--text-dim); margin:16px 0;">Alle 5 Nodes des Security Layers wurden erfolgreich entschlüsselt.</p>
+      <div id="complete-summary" style="text-align:left; background:var(--panel-2); padding:16px; border-radius:8px; margin:20px 0;"></div>
+      <div class="no-print" style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="showTopics()">\> WEITERE LAYERS</button>
+        <button class="btn btn-solution" onclick="printAllSolutions()">\> ALLE LÖSUNGEN DRUCKEN</button>
+      </div>
+    </div>
+  </div>
+  <div class="solution-overlay no-print" id="solution-overlay" onclick="if(event.target===this)closeSolution()">
+    <div class="solution-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2 id="sol-title">LÖSUNG</h2>
+        <div>
+          <button class="btn btn-primary" onclick="window.print()" style="margin-right:8px;">\> DRUCKEN</button>
+          <button class="btn btn-danger" onclick="closeSolution()">\> SCHLIESSEN</button>
+        </div>
+      </div>
+      <div id="sol-body"></div>
+    </div>
+  </div>
+</div>
+<script>
+const SAVE_KEY = 'cybermath_v2';
+const TOPICS = [
+{
+    id: 'A', name: 'Arithmetik & Algebra', color: '#00f0ff',
+    exercises: [{
+        id: 'A1', title: 'NODE 01: Versorgungsmodul',
+        problem: '<strong>Szenario:</strong> Das Versorgungsmodul benötigt exakte Preisberechnungen.<br>Ein Händler-Drone verkauft Energiezellen und Wasserfilter.<br><strong>Datenpaket:</strong> Für 2 Zellen und 3 Filter zahlst du 13 Credits. Der Preis für 3 Zellen entspricht dem Preis für 2 Filter.<br><strong>Mission:</strong> Berechne den Preis für <em>eine</em> Energiezelle (<span class="formula">x</span>) und <em>einen</em> Wasserfilter (<span class="formula">y</span>).',
+        inputs: [{ label: 'Preis Energiezelle x (Credits)', key: 'x', type: 'number' }, { label: 'Preis Wasserfilter y (Credits)', key: 'y', type: 'number' }],
+        validate: (vals) => Math.abs(vals.x - 2) < 0.01 && Math.abs(vals.y - 3) < 0.01,
+        hints: ['Tipp: Stelle ein lineares Gleichungssystem auf. Gleichung (1): <span class=\'formula\'>2x + 3y = 13</span>.', 'Tipp: Aus der zweiten Bedingung folgt: <span class=\'formula\'>3x = 2y</span>. Drücke <span class=\'formula\'>y</span> durch <span class=\'formula\'>x</span> aus.', 'Tipp: Setze <span class=\'formula\'>y = 1,5x</span> in Gleichung (1) ein und löse nach <span class=\'formula\'>x</span>.'],
+        solution: [{ step: 'Gleichungssystem: <span class=\'formula\'>2x + 3y = 13</span> und <span class=\'formula\'>3x - 2y = 0</span>', comment: 'Die zweite Gleichung kommt aus der Bedingung: Preis für 3 Zellen = Preis für 2 Filter.' }, { step: 'Aus <span class=\'formula\'>3x = 2y</span> folgt: <span class=\'formula\'>y = 1,5x</span>', comment: 'Umformen nach y, um in die erste Gleichung einsetzen zu können.' }, { step: 'Einsetzen in (1): <span class=\'formula\'>2x + 3(1,5x) = 13 ⇒ 2x + 4,5x = 13 ⇒ 6,5x = 13</span>', comment: 'Klammer auflösen und x-Terme zusammenfassen.' }, { step: '<span class=\'formula\'>x = 2</span> Credits', comment: 'Division durch 6,5.' }, { step: '<span class=\'formula\'>y = 1,5 · 2 = 3</span> Credits', comment: 'Rückwärts Einsetzen.' }, { step: 'Probe: <span class=\'formula\'>2·2 + 3·3 = 13</span> ✓ und <span class=\'formula\'>3·2 = 2·3 = 6</span> ✓', comment: 'Verifizierung beider Gleichungen.' }],
+        answerDisplay: 'x = 2 Credits, y = 3 Credits'
+      }, {
+        id: 'A2', title: 'NODE 02: Quadratische Verschlüsselung',
+        problem: '<strong>Szenario:</strong> Ein verschlüsseltes Datenpaket verwendet eine quadratische Schlüsselfunktion.<br><strong>Mission:</strong> Löse die Gleichung <span class="formula">x<sup>2</sup> - 8x + 15 = 0</span> mit der <span class="formula">p-q</span>-Formel und führe eine Probe durch.',
+        inputs: [{ label: 'Lösungsmenge (z.B. 3;5)', key: 'sol', type: 'text' }],
+        validate: (vals) => { const s = (vals.sol || '').toLowerCase().replace(/[^0-9;,.\-]/g, ''); return s.includes('3') && s.includes('5'); },
+        hints: ['Tipp: <span class=\'formula\'>p-q</span>-Formel: <span class=\'formula\'>x<sub>1,2</sub> = -p/2 ± √((p/2)<sup>2</sup> - q)</span>. Hier ist <span class=\'formula\'>p = -8</span> und <span class=\'formula\'>q = 15</span>.', 'Tipp: Berechne zuerst die Diskriminante <span class=\'formula\'>D = (p/2)<sup>2</sup> - q = 16 - 15 = 1</span>.', 'Tipp: <span class=\'formula\'>√1 = 1</span>. Also <span class=\'formula\'>x = 4 ± 1</span>. Die beiden Lösungen sind...'],
+        solution: [{ step: '<span class=\'formula\'>p = -8, q = 15</span>', comment: 'Ablesen aus der Normalform <span class=\'formula\'>x<sup>2</sup> + px + q = 0</span>.' }, { step: '<span class=\'formula\'>x<sub>1,2</sub> = 4 ± √(16 - 15) = 4 ± √1 = 4 ± 1</span>', comment: 'p-q-Formel angewendet. Die Diskriminante ist 1, also eine perfekte Quadratzahl.' }, { step: '<span class=\'formula\'>x<sub>1</sub> = 5, x<sub>2</sub> = 3</span>', comment: 'Zwei Lösungen durch Addition/Subtraktion von 1.' }, { step: 'Probe <span class=\'formula\'>x = 5</span>: <span class=\'formula\'>25 - 40 + 15 = 0</span> ✓', comment: 'Einsetzen in die Originalgleichung.' }, { step: 'Probe <span class=\'formula\'>x = 3</span>: <span class=\'formula\'>9 - 24 + 15 = 0</span> ✓', comment: 'Beide Lösungen verifiziert.' }],
+        answerDisplay: 'L = {3; 5}'
+      }, {
+        id: 'A3', title: 'NODE 03: Term-Kompression',
+        problem: '<strong>Szenario:</strong> Der KI-Kern muss einen komplexen Datenterm komprimieren.<br><strong>Mission:</strong> Vereinfache den Term so weit wie möglich:<br><span class="formula">T = (2x<sup>3</sup>y)<sup>2</sup> · (3xy<sup>2</sup>)<sup>3</sup> / (6x<sup>4</sup>y<sup>3</sup>)<sup>2</sup></span>',
+        inputs: [{ label: 'Vereinfachter Term', key: 'sol', type: 'text' }],
+        validate: (vals) => { const s = (vals.sol || '').toLowerCase().replace(/[\s*·]/g, '').replace(/²/g, '2').replace(/³/g, '3'); return s === '3xy2' || s === '3xy^2' || s === '3x1y2' || (s.includes('3') && s.includes('x') && s.includes('y2')); },
+        hints: ['Tipp: Potenzgesetz <span class=\'formula\'>(a·b)<sup>n</sup> = a<sup>n</sup>·b<sup>n</sup></span>. Wende dies auf alle drei Klammern an.', 'Tipp: <span class=\'formula\'>(2x<sup>3</sup>y)<sup>2</sup> = 4x<sup>6</sup>y<sup>2</sup></span>. <span class=\'formula\'>(3xy<sup>2</sup>)<sup>3</sup> = 27x<sup>3</sup>y<sup>6</sup></span>. Nenner: <span class=\'formula\'>(6x<sup>4</sup>y<sup>3</sup>)<sup>2</sup> = 36x<sup>8</sup>y<sup>6</sup></span>.', 'Tipp: Im Zähler: <span class=\'formula\'>4·27 = 108</span> und <span class=\'formula\'>x<sup>6+3</sup> = x<sup>9</sup>, y<sup>2+6</sup> = y<sup>8</sup></span>. Dann <span class=\'formula\'>108/36 = 3</span>.'],
+        solution: [{ step: '<span class=\'formula\'>(2x<sup>3</sup>y)<sup>2</sup> = 4x<sup>6</sup>y<sup>2</sup></span>', comment: 'Potenz auf jeden Faktor anwenden: <span class=\'formula\'>2<sup>2</sup>=4, (x<sup>3</sup>)<sup>2</sup>=x<sup>6</sup>, y<sup>2</sup>=y<sup>2</sup></span>.' }, { step: '<span class=\'formula\'>(3xy<sup>2</sup>)<sup>3</sup> = 27x<sup>3</sup>y<sup>6</sup></span>', comment: '<span class=\'formula\'>3<sup>3</sup>=27, x<sup>3</sup>=x<sup>3</sup>, (y<sup>2</sup>)<sup>3</sup>=y<sup>6</sup></span>.' }, { step: '<span class=\'formula\'>(6x<sup>4</sup>y<sup>3</sup>)<sup>2</sup> = 36x<sup>8</sup>y<sup>6</sup></span>', comment: 'Nenner: <span class=\'formula\'>6<sup>2</sup>=36, (x<sup>4</sup>)<sup>2</sup>=x<sup>8</sup>, (y<sup>3</sup>)<sup>2</sup>=y<sup>6</sup></span>.' }, { step: '<span class=\'formula\'>Zähler: 4·27 · x<sup>6+3</sup> · y<sup>2+6</sup> = 108x<sup>9</sup>y<sup>8</sup></span>', comment: 'Koeffizienten multiplizieren, Exponenten addieren (Potenzgesetz <span class=\'formula\'>a<sup>m</sup> · a<sup>n</sup> = a<sup>m+n</sup></span>).' }, { step: '<span class=\'formula\'>T = 108x<sup>9</sup>y<sup>8</sup> / 36x<sup>8</sup>y<sup>6</sup> = 3x<sup>1</sup>y<sup>2</sup> = 3xy<sup>2</sup></span>', comment: '<span class=\'formula\'>108/36 = 3, x<sup>9</sup>/x<sup>8</sup> = x<sup>1</sup>, y<sup>8</sup>/y<sup>6</sup> = y<sup>2</sup></span>.' }],
+        answerDisplay: '3xy<sup>2</sup>'
+      }, {
+        id: 'A4', title: 'NODE 04: Schnittpunkt-Algorithmus',
+        problem: '<strong>Szenario:</strong> Zwei Funktionsmodule kollidieren im Koordinatensystem.<br>Modul A (quadratisch): <span class="formula">y = x<sup>2</sup> - 4x + 3</span><br>Modul B (linear): <span class="formula">y = x + 3</span><br><strong>Mission:</strong> Berechne alle Schnittpunkte <span class="formula">S<sub>1</sub></span> und <span class="formula">S<sub>2</sub></span>.',
+        inputs: [{ label: 'x<sub>1</sub> (erste Schnittstelle)', key: 'x1', type: 'number' }, { label: 'y<sub>1</sub> (dazugehörig)', key: 'y1', type: 'number' }, { label: 'x<sub>2</sub> (zweite Schnittstelle)', key: 'x2', type: 'number' }, { label: 'y<sub>2</sub> (dazugehörig)', key: 'y2', type: 'number' }],
+        validate: (vals) => Math.abs(vals.x1 - 0) < 0.01 && Math.abs(vals.y1 - 3) < 0.01 && Math.abs(vals.x2 - 5) < 0.01 && Math.abs(vals.y2 - 8) < 0.01,
+        hints: ['Tipp: Setze die Funktionsterme gleich: <span class=\'formula\'>x<sup>2</sup> - 4x + 3 = x + 3</span>.', 'Tipp: Bringe alles auf eine Seite: <span class=\'formula\'>x<sup>2</sup> - 5x = 0</span>. Klammere <span class=\'formula\'>x</span> aus.', 'Tipp: <span class=\'formula\'>x(x - 5) = 0</span> liefert <span class=\'formula\'>x<sub>1</sub> = 0</span> und <span class=\'formula\'>x<sub>2</sub> = 5</span>. Setze in die Geradengleichung ein.'],
+        solution: [{ step: '<span class=\'formula\'>x<sup>2</sup> - 4x + 3 = x + 3</span>', comment: 'Schnittpunktbedingung: Funktionswerte gleichsetzen.' }, { step: '<span class=\'formula\'>x<sup>2</sup> - 5x = 0</span>', comment: 'Alles auf die linke Seite bringen und zusammenfassen.' }, { step: '<span class=\'formula\'>x(x - 5) = 0</span>', comment: 'Ausklammern des gemeinsamen Faktors x.' }, { step: '<span class=\'formula\'>x<sub>1</sub> = 0, x<sub>2</sub> = 5</span>', comment: 'Nullstellen des Produkts: jeder Faktor kann null sein.' }, { step: '<span class=\'formula\'>y<sub>1</sub> = 0 + 3 = 3, y<sub>2</sub> = 5 + 3 = 8</span>', comment: 'Einsetzen in die lineare Gleichung (einfacher als die quadratische).' }, { step: 'Schnittpunkte: <span class=\'formula\'>S<sub>1</sub>(0|3)</span> und <span class=\'formula\'>S<sub>2</sub>(5|8)</span>', comment: 'Koordinatenpaare bilden.' }],
+        answerDisplay: 'S<sub>1</sub>(0|3), S<sub>2</sub>(5|8)'
+      }, {
+        id: 'A5', title: 'NODE 05: Bruchterm-Vereinfachung',
+        problem: '<strong>Szenario:</strong> Ein Datenfragment enthält einen undefinierten Bruchterm.<br><strong>Mission:</strong> Vereinfache den Term und gib die Definitionsmenge an.<br><span class="formula">T = (x<sup>2</sup> - 16) / (x + 4)</span>',
+        inputs: [{ label: 'Vereinfachter Term (z.B. x-4)', key: 'term', type: 'text' }, { label: 'Definitionsmenge (z.B. x!=-4)', key: 'def', type: 'text' }],
+        validate: (vals) => { const t = (vals.term || '').toLowerCase().replace(/\s/g, '').replace(/[()]/g, ''); const d = (vals.def || '').toLowerCase().replace(/\s/g, ''); return (t === 'x-4' || t === 'x-4') && (d.includes('-4') || d.includes('\neq-4') || d.includes('=/=-4')); },
+        hints: ['Tipp: Der Zähler ist eine Differenz von Quadraten: <span class=\'formula\'>x<sup>2</sup> - 16 = (x + 4)(x - 4)</span>.', 'Tipp: Kürze den gemeinsamen Faktor <span class=\'formula\'>(x + 4)</span>. Für welches <span class=\'formula\'>x</span> würde dieser Faktor null?', 'Tipp: Der ursprüngliche Term ist bei <span class=\'formula\'>x = -4</span> nicht definiert (Nenner = 0).'],
+        solution: [{ step: '<span class=\'formula\'>x<sup>2</sup> - 16 = (x + 4)(x - 4)</span>', comment: 'Dritte binomische Formel rückwärts anwenden.' }, { step: '<span class=\'formula\'>T = (x + 4)(x - 4) / (x + 4) = x - 4</span>', comment: 'Kürzen des gemeinsamen Faktors <span class=\'formula\'>(x + 4)</span>.' }, { step: '<span class=\'formula\'>x + 4 = 0 ⇒ x = -4</span>', comment: 'Nenner darf nicht null werden.' }, { step: 'Definitionsmenge: <span class=\'formula\'>D = ℚ \\ {-4}</span>', comment: 'Der vereinfachte Term <span class=\'formula\'>x - 4</span> ist für alle <span class=\'formula\'>x</span> definiert, der ursprüngliche nur für <span class=\'formula\'>x ≠ -4</span>.' }, { step: 'Vereinfachter Term: <span class=\'formula\'>T = x - 4</span> mit <span class=\'formula\'>x ≠ -4</span>', comment: 'Endergebnis mit Einschränkung.' }],
+        answerDisplay: 'x - 4, D = ℚ \\ {-4}'
+      }]
+  },
+{
+    id: 'P', name: 'Prozentrechnung & Zinsen', color: '#ff00aa',
+    exercises: [{
+        id: 'P1', title: 'NODE 01: Gehalts-Algorithmus',
+        problem: '<strong>Szenario:</strong> Die Neo-Thuringia Corp. hat einen neuen Gehalts-Algorithmus aktiviert.<br><strong>Daten:</strong> Dein Zuschlag beträgt 120 Credits. Dies entspricht einer Erhöhung um 8 %.<br><strong>Mission:</strong> Berechne das ursprüngliche Gehalt und das neue Gehalt.',
+        inputs: [{ label: 'Ursprüngliches Gehalt (Credits)', key: 'orig', type: 'number' }, { label: 'Neues Gehalt (Credits)', key: 'new', type: 'number' }],
+        validate: (vals) => Math.abs(vals.orig - 1500) < 0.01 && Math.abs(vals.new - 1620) < 0.01,
+        hints: ['Tipp: 8 % entsprechen 120 Credits. Berechne zuerst 1 %.', 'Tipp: <span class=\'formula\'>1 % = 120 / 8 = 15</span> Credits.', 'Tipp: <span class=\'formula\'>100 % = 15 · 100</span>. Das neue Gehalt ist der Grundwert + 120.'],
+        solution: [{ step: '<span class=\'formula\'>8 % = 120</span> Credits', comment: 'Gegeben: Prozentwert und Prozentsatz.' }, { step: '<span class=\'formula\'>1 % = 120 / 8 = 15</span> Credits', comment: 'Grundwertberechnung: Prozentwert durch Prozentsatz.' }, { step: '<span class=\'formula\'>100 % = 15 · 100 = 1500</span> Credits', comment: 'Ursprüngliches Gehalt (Grundwert).' }, { step: '<span class=\'formula\'>Neues Gehalt = 1500 + 120 = 1620</span> Credits', comment: 'Addition des Zuschlags.' }],
+        answerDisplay: 'Ursprünglich: 1500 Credits, Neu: 1620 Credits'
+      }, {
+        id: 'P2', title: 'NODE 02: Zinseszins-Protokoll',
+        problem: '<strong>Szenario:</strong> Ein Vermögensmodul legt 4000 Credits zu 5 % p.a. mit Zinseszins an.<br><strong>Mission:</strong> Berechne das Guthaben nach 2 Zyklen und die gesamte Zinsleistung.',
+        inputs: [{ label: 'Guthaben nach 2 Zyklen (Credits)', key: 'final', type: 'number' }, { label: 'Gesamtzinsen (Credits)', key: 'interest', type: 'number' }],
+        validate: (vals) => Math.abs(vals.final - 4410) < 0.01 && Math.abs(vals.interest - 410) < 0.01,
+        hints: ['Tipp: Zinseszins-Formel: <span class=\'formula\'>K<sub>n</sub> = K<sub>0</sub> · (1 + p/100)<sup>n</sup></span>.', 'Tipp: <span class=\'formula\'>K<sub>1</sub> = 4000 · 1,05 = 4200</span>. <span class=\'formula\'>K<sub>2</sub> = 4200 · 1,05</span>.', 'Tipp: Oder direkt: <span class=\'formula\'>K<sub>2</sub> = 4000 · 1,05<sup>2</sup> = 4000 · 1,1025</span>.'],
+        solution: [{ step: '<span class=\'formula\'>K<sub>1</sub> = 4000 · 1,05 = 4200</span> Credits', comment: 'Erstes Jahr.' }, { step: '<span class=\'formula\'>K<sub>2</sub> = 4200 · 1,05 = 4410</span> Credits', comment: 'Zweites Jahr (Zinseszins).' }, { step: '<span class=\'formula\'>K<sub>2</sub> = 4000 · 1,05<sup>2</sup> = 4000 · 1,1025 = 4410</span> Credits', comment: 'Direkte Formel.' }, { step: '<span class=\'formula\'>Gesamtzinsen = 4410 - 4000 = 410</span> Credits', comment: 'Differenz Endkapital minus Anfangskapital.' }],
+        answerDisplay: 'K<sub>2</sub> = 4410 Credits, Zinsen = 410 Credits'
+      }, {
+        id: 'P3', title: 'NODE 03: Kredit-Subroutine',
+        problem: '<strong>Szenario:</strong> Du nimmst einen Notfall-Kredit über 6000 Credits auf. Rückzahlung in 12 Raten à 530 Credits.<br><strong>Mission:</strong> Berechne die Gesamtkosten und den prozentualen Aufschlag.',
+        inputs: [{ label: 'Gesamtkosten (Credits)', key: 'cost', type: 'number' }, { label: 'Prozentualer Aufschlag (%)', key: 'pct', type: 'number' }],
+        validate: (vals) => Math.abs(vals.cost - 360) < 0.01 && Math.abs(vals.pct - 6) < 0.01,
+        hints: ['Tipp: Gesamtrückzahlung = Anzahl Raten · Ratenhöhe.', 'Tipp: Kreditkosten = Gesamtrückzahlung - Kreditsumme.', 'Tipp: Prozentualer Aufschlag = (Kosten / Kreditsumme) · 100.'],
+        solution: [{ step: '<span class=\'formula\'>Gesamtrückzahlung = 12 · 530 = 6360</span> Credits', comment: 'Multiplikation der Raten.' }, { step: '<span class=\'formula\'>Kreditkosten = 6360 - 6000 = 360</span> Credits', comment: 'Differenz zur Kreditsumme.' }, { step: '<span class=\'formula\'>Prozentualer Aufschlag = (360 / 6000) · 100 % = 6 %</span>', comment: 'Prozentsatzberechnung.' }],
+        answerDisplay: 'Kosten: 360 Credits, Aufschlag: 6 %'
+      }, {
+        id: 'P4', title: 'NODE 04: MwSt-Rückrechnung',
+        problem: '<strong>Szenario:</strong> Ein Handels-Drone zeigt einen Bruttopreis von 238 Credits an (inkl. 19 % MwSt).<br><strong>Mission:</strong> Berechne den Nettopreis und die enthaltene MwSt.',
+        inputs: [{ label: 'Nettopreis (Credits)', key: 'net', type: 'number' }, { label: 'MwSt-Betrag (Credits)', key: 'vat', type: 'number' }],
+        validate: (vals) => Math.abs(vals.net - 200) < 0.01 && Math.abs(vals.vat - 38) < 0.01,
+        hints: ['Tipp: Der Bruttopreis entspricht <span class=\'formula\'>119 %</span> des Nettopreises.', 'Tipp: <span class=\'formula\'>Netto = 238 / 1,19</span>.', 'Tipp: <span class=\'formula\'>MwSt = Brutto - Netto</span>.'],
+        solution: [{ step: '<span class=\'formula\'>119 % = 238</span> Credits', comment: 'Brutto = Netto + 19 % MwSt = 119 % des Nettopreises.' }, { step: '<span class=\'formula\'>1 % = 238 / 119 = 2</span> Credits', comment: 'Grundwertberechnung rückwärts.' }, { step: '<span class=\'formula\'>Netto = 100 % = 2 · 100 = 200</span> Credits', comment: 'Nettopreis (Grundwert).' }, { step: '<span class=\'formula\'>MwSt = 238 - 200 = 38</span> Credits', comment: 'Differenz Brutto minus Netto.' }],
+        answerDisplay: 'Netto: 200 Credits, MwSt: 38 Credits'
+      }, {
+        id: 'P5', title: 'NODE 05: Kettenrabatt-Analyse',
+        problem: '<strong>Szenario:</strong> Ein Artikel kostet ursprünglich 100 Credits. Er wird um 20 % reduziert, dann um weitere 20 % erhöht.<br><strong>Mission:</strong> Berechne den Endpreis und die prozentuale Gesamtveränderung gegenüber dem Original.',
+        inputs: [{ label: 'Endpreis (Credits)', key: 'end', type: 'number' }, { label: 'Gesamtveränderung (%)', key: 'change', type: 'number' }],
+        validate: (vals) => Math.abs(vals.end - 96) < 0.01 && Math.abs(vals.change - (-4)) < 0.01,
+        hints: ['Tipp: Nach der Reduktion: <span class=\'formula\'>100 · 0,8 = 80</span> Credits.', 'Tipp: Nach der Erhöhung: <span class=\'formula\'>80 · 1,2 = 96</span> Credits.', 'Tipp: Die Gesamtveränderung ist <span class=\'formula\'>96 - 100 = -4</span> Credits relativ zu 100 Credits.'],
+        solution: [{ step: '<span class=\'formula\'>100 · 0,80 = 80</span> Credits', comment: 'Reduktion um 20 %.' }, { step: '<span class=\'formula\'>80 · 1,20 = 96</span> Credits', comment: 'Erhöhung um 20 % (bezogen auf den reduzierten Preis!).' }, { step: '<span class=\'formula\'>Endpreis = 96</span> Credits', comment: 'Absoluter Endpreis.' }, { step: '<span class=\'formula\'>Veränderung = (96 - 100) / 100 · 100 % = -4 %</span>', comment: 'Die Veränderung ist nicht 0 %, da die 20 % Erhöhung auf einen kleineren Grundwert bezogen werden.' }],
+        answerDisplay: 'Endpreis: 96 Credits, Gesamt: -4 %'
+      }]
+  },
+{
+    id: 'F', name: 'Funktionen', color: '#00ff66',
+    exercises: [{
+        id: 'F1', title: 'NODE 01: Lineare Signalverarbeitung',
+        problem: '<strong>Szenario:</strong> Zwei Datenpunkte <span class="formula">A(1|2)</span> und <span class="formula">B(4|8)</span> liegen auf einer Signalgeraden.<br><strong>Mission:</strong> Bestimme die Funktionsgleichung <span class="formula">y = mx + n</span> und den Schnittpunkt mit der <span class="formula">x</span>-Achse.',
+        inputs: [{ label: 'Steigung m', key: 'm', type: 'number' }, { label: 'y-Achsenabschnitt n', key: 'n', type: 'number' }, { label: 'x-Achsenabschnitt (Zahl)', key: 'zero', type: 'number' }],
+        validate: (vals) => Math.abs(vals.m - 2) < 0.01 && Math.abs(vals.n - 0) < 0.01 && Math.abs(vals.zero - 0) < 0.01,
+        hints: ['Tipp: Steigung <span class=\'formula\'>m = (y<sub>2</sub> - y<sub>1</sub>) / (x<sub>2</sub> - x<sub>1</sub>) = (8 - 2) / (4 - 1)</span>.', 'Tipp: Einsetzen von Punkt A in <span class=\'formula\'>y = mx + n</span>: <span class=\'formula\'>2 = 2·1 + n</span>.', 'Tipp: Für den x-Achsenabschnitt setze <span class=\'formula\'>y = 0</span>: <span class=\'formula\'>0 = 2x</span>.'],
+        solution: [{ step: '<span class=\'formula\'>m = (8 - 2) / (4 - 1) = 6 / 3 = 2</span>', comment: 'Differenzenquotient.' }, { step: 'Einsetzen von <span class=\'formula\'>A(1|2)</span>: <span class=\'formula\'>2 = 2·1 + n ⇒ n = 0</span>', comment: 'Punktprobe zur Bestimmung von n.' }, { step: '<span class=\'formula\'>y = 2x</span>', comment: 'Gerade durch den Ursprung.' }, { step: 'Schnittpunkt mit x-Achse: <span class=\'formula\'>0 = 2x ⇒ x = 0</span>', comment: 'Nullstelle bei <span class=\'formula\'>x = 0</span>, also Ursprung.' }],
+        answerDisplay: 'y = 2x, Nullstelle: S<sub>x</sub>(0|0)'
+      }, {
+        id: 'F2', title: 'NODE 02: Quadratische Schallwelle',
+        problem: '<strong>Szenario:</strong> Eine Schallwelle wird durch <span class="formula">y = (x - 2)<sup>2</sup> - 9</span> modelliert.<br><strong>Mission:</strong> Bestimme Scheitelpunkt, Nullstellen (mit <span class="formula">p-q</span>-Formel aus der Allgemeinen Form) und die allgemeine Form.',
+        inputs: [{ label: 'Scheitelpunkt S(x|y)', key: 'vertex', type: 'text' }, { label: 'Nullstellen (z.B. -1;5)', key: 'zeros', type: 'text' }, { label: 'Allgemeine Form (z.B. x^2-4x-5)', key: 'general', type: 'text' }],
+        validate: (vals) => { const v = (vals.vertex || '').replace(/[^0-9\-|,;]/g, ''); const z = (vals.zeros || '').replace(/[^0-9\-|,;]/g, ''); const g = (vals.general || '').toLowerCase().replace(/[\s*]/g, '').replace(/²/g, '2'); return v.includes('2') && v.includes('9') && z.includes('5') && z.includes('1') && (g.includes('x2-4x-5') || g.includes('x^2-4x-5')); },
+        hints: ['Tipp: Scheitelpunktform <span class=\'formula\'>y = (x - d)<sup>2</sup> + e</span> hat Scheitelpunkt <span class=\'formula\'>S(d|e)</span>.', 'Tipp: Allgemeine Form durch Ausmultiplizieren: <span class=\'formula\'>(x - 2)<sup>2</sup> = x<sup>2</sup> - 4x + 4</span>, dann <span class=\'formula\'>-9</span> addieren.', 'Tipp: Nullstellen mit <span class=\'formula\'>p-q</span>-Formel aus <span class=\'formula\'>x<sup>2</sup> - 4x - 5 = 0</span>: <span class=\'formula\'>p = -4, q = -5</span>.'],
+        solution: [{ step: '<span class=\'formula\'>S(2|-9)</span>', comment: 'Ablesen aus der Scheitelpunktform <span class=\'formula\'>y = (x - 2)<sup>2</sup> - 9</span>.' }, { step: '<span class=\'formula\'>(x - 2)<sup>2</sup> - 9 = 0 ⇒ (x - 2)<sup>2</sup> = 9</span>', comment: 'Umformen nach Nullstellen.' }, { step: '<span class=\'formula\'>x - 2 = 3 ⇒ x<sub>1</sub> = 5</span>', comment: 'Positive Wurzel.' }, { step: '<span class=\'formula\'>x - 2 = -3 ⇒ x<sub>2</sub> = -1</span>', comment: 'Negative Wurzel.' }, { step: '<span class=\'formula\'>y = x<sup>2</sup> - 4x - 5</span>', comment: '<span class=\'formula\'>(x-2)<sup>2</sup> = x<sup>2</sup> - 4x + 4</span>, minus 9 ergibt <span class=\'formula\'>-5</span>.' }, { step: 'Kontrolle mit <span class=\'formula\'>p-q</span>-Formel: <span class=\'formula\'>x = 2 ± √(4 + 5) = 2 ± 3</span> ✓', comment: 'Verifizierung über die allgemeine Form.' }],
+        answerDisplay: 'S(2|-9), N: {-1; 5}, AF: y = x<sup>2</sup> - 4x - 5'
+      }, {
+        id: 'F3', title: 'NODE 03: Exponentielles Wachstum',
+        problem: '<strong>Szenario:</strong> Eine Naniten-Kultur wächst exponentiell. Start: 256 Einheiten. Stündliche Zunahme: 25 %.<br><strong>Mission:</strong> Wie viele Naniten nach 2 h und 4 h? Nach wie vielen Stunden beträgt die Zahl erstmals mindestens 500?',
+        inputs: [{ label: 'Naniten nach 2 h', key: 'h2', type: 'number' }, { label: 'Naniten nach 4 h', key: 'h4', type: 'number' }, { label: 'Stunden bis ≥ 500 (erste ganze Zahl)', key: 't500', type: 'number' }],
+        validate: (vals) => Math.abs(vals.h2 - 400) < 0.01 && Math.abs(vals.h4 - 625) < 0.01 && Math.abs(vals.t500 - 3) < 0.01,
+        hints: ['Tipp: Wachstumsfunktion: <span class=\'formula\'>f(t) = 256 · 1,25<sup>t</sup></span>.', 'Tipp: <span class=\'formula\'>1,25<sup>2</sup> = 25/16</span>. <span class=\'formula\'>256 · 25/16 = 16 · 25</span>.', 'Tipp: <span class=\'formula\'>f(3) = 256 · 1,25<sup>3</sup> = 256 · 125/64 = 4 · 125</span>.'],
+        solution: [{ step: '<span class=\'formula\'>f(t) = 256 · 1,25<sup>t</sup></span>', comment: 'Wachstumsfaktor <span class=\'formula\'>a = 1 + 0,25 = 1,25 = 5/4</span>.' }, { step: '<span class=\'formula\'>f(2) = 256 · (5/4)<sup>2</sup> = 256 · 25/16 = 400</span>', comment: '<span class=\'formula\'>256/16 = 16</span>. <span class=\'formula\'>16 · 25 = 400</span>.' }, { step: '<span class=\'formula\'>f(4) = 256 · (5/4)<sup>4</sup> = 400 · 25/16 = 625</span>', comment: 'Oder direkt: <span class=\'formula\'>256 · 625/256 = 625</span>.' }, { step: '<span class=\'formula\'>f(3) = 256 · (5/4)<sup>3</sup> = 256 · 125/64 = 500</span>', comment: 'Exakt 500 Naniten nach 3 Stunden.' }, { step: 'Erstmals <span class=\'formula\'>≥ 500</span> nach <span class=\'formula\'>t = 3</span> Stunden', comment: 'Da <span class=\'formula\'>f(3) = 500</span> exakt.' }],
+        answerDisplay: 'Nach 2h: 400, Nach 4h: 625, ≥500: nach 3h'
+      }, {
+        id: 'F4', title: 'NODE 04: Schnittpunkt-System',
+        problem: '<strong>Szenario:</strong> Ein lineares und ein quadratisches Modul kreuzen sich im Koordinatensystem.<br>Modul Q: <span class="formula">y = -x<sup>2</sup> + 4x</span><br>Modul L: <span class="formula">y = x</span><br><strong>Mission:</strong> Berechne beide Schnittpunkte.',
+        inputs: [{ label: 'x<sub>1</sub>', key: 'x1', type: 'number' }, { label: 'y<sub>1</sub>', key: 'y1', type: 'number' }, { label: 'x<sub>2</sub>', key: 'x2', type: 'number' }, { label: 'y<sub>2</sub>', key: 'y2', type: 'number' }],
+        validate: (vals) => Math.abs(vals.x1 - 0) < 0.01 && Math.abs(vals.y1 - 0) < 0.01 && Math.abs(vals.x2 - 3) < 0.01 && Math.abs(vals.y2 - 3) < 0.01,
+        hints: ['Tipp: Gleichsetzen: <span class=\'formula\'>-x<sup>2</sup> + 4x = x</span>.', 'Tipp: Bringe alle Terme auf eine Seite: <span class=\'formula\'>-x<sup>2</sup> + 3x = 0</span>. Multipliziere mit <span class=\'formula\'>-1</span>.', 'Tipp: <span class=\'formula\'>x(-x + 3) = 0</span> liefert <span class=\'formula\'>x<sub>1</sub> = 0</span> und <span class=\'formula\'>x<sub>2</sub> = 3</span>.'],
+        solution: [{ step: '<span class=\'formula\'>-x<sup>2</sup> + 4x = x</span>', comment: 'Schnittpunktbedingung: Funktionswerte gleichsetzen.' }, { step: '<span class=\'formula\'>-x<sup>2</sup> + 3x = 0</span>', comment: 'Alles auf die linke Seite bringen.' }, { step: '<span class=\'formula\'>x(-x + 3) = 0</span>', comment: 'Ausklammern von <span class=\'formula\'>x</span>.' }, { step: '<span class=\'formula\'>x<sub>1</sub> = 0, x<sub>2</sub> = 3</span>', comment: 'Nullstellen des Produkts.' }, { step: '<span class=\'formula\'>y<sub>1</sub> = 0, y<sub>2</sub> = 3</span>', comment: 'Einsetzen in <span class=\'formula\'>y = x</span>.' }, { step: 'Schnittpunkte: <span class=\'formula\'>S<sub>1</sub>(0|0)</span> und <span class=\'formula\'>S<sub>2</sub>(3|3)</span>', comment: 'Koordinatenpaare bilden.' }],
+        answerDisplay: 'S<sub>1</sub>(0|0), S<sub>2</sub>(3|3)'
+      }, {
+        id: 'F5', title: 'NODE 05: Funktionstyp-Identifikation',
+        problem: '<strong>Szenario:</strong> Ein unbekanntes Funktionsmodul gibt folgende Wertepaare aus:<br><span class="formula">x: -2, -1, 0, 1, 2</span><br><span class="formula">y: -8, -1, 0, 1, 8</span><br><strong>Mission:</strong> Identifiziere den Funktionstyp (linear, quadratisch, kubisch, hyperbolisch) und gib die Funktionsgleichung an.',
+        inputs: [{ label: 'Funktionstyp', key: 'type', type: 'text' }, { label: 'Funktionsgleichung (z.B. f(x)=x^3)', key: 'eq', type: 'text' }],
+        validate: (vals) => { const t = (vals.type || '').toLowerCase(); const e = (vals.eq || '').toLowerCase().replace(/\s/g, ''); return (t.includes('kubisch') || t.includes('potenz') || t.includes('polynom')) && (e.includes('x^3') || e.includes('x<sup>3</sup>') || e.includes('x*x*x') || e.includes('xxx')); },
+        hints: ['Tipp: Lineare Funktionen haben konstante Differenzen. Quadratische haben konstante zweite Differenzen.', 'Tipp: Berechne die Differenzen der y-Werte: <span class=\'formula\'>-1-(-8)=7, 0-(-1)=1, 1-0=1, 8-1=7</span>. Nicht konstant.', 'Tipp: Prüfe <span class=\'formula\'>f(x) = x<sup>3</sup></span>: <span class=\'formula\'>(-2)<sup>3</sup> = -8, (-1)<sup>3</sup> = -1, 0<sup>3</sup> = 0, 1<sup>3</sup> = 1, 2<sup>3</sup> = 8</span>.'],
+        solution: [{ step: 'Die Differenzen <span class=\'formula\'>7, 1, 1, 7</span> sind nicht konstant.', comment: 'Keine lineare Funktion.' }, { step: 'Die zweiten Differenzen <span class=\'formula\'>-6, 0, 6</span> sind ebenfalls nicht konstant.', comment: 'Keine quadratische Funktion.' }, { step: '<span class=\'formula\'>f(x) = x<sup>3</sup></span> liefert exakt die gegebenen Werte.', comment: 'Potenzfunktion mit ungeradem Exponenten.' }, { step: 'Funktionstyp: <strong>kubisch</strong> (Potenzfunktion / Polynom 3. Grades)', comment: 'Kubische Funktionen sind streng monoton und punktsymmetrisch zum Ursprung.' }, { step: '<span class=\'formula\'>f(x) = x<sup>3</sup></span>', comment: 'Einfachste kubische Funktion.' }],
+        answerDisplay: 'kubisch, f(x) = x<sup>3</sup>'
+      }]
+  },
+{
+    id: 'G', name: 'Geometrie', color: '#ffee00',
+    exercises: [{
+        id: 'G1', title: 'NODE 01: Rechtwinkliges Schild',
+        problem: '<strong>Szenario:</strong> Ein Schild hat die Form eines rechtwinkligen Dreiecks mit Katheten <span class="formula">a = 6 cm</span> und <span class="formula">b = 8 cm</span>.<br><strong>Mission:</strong> Berechne Hypotenuse <span class="formula">c</span>, Flächeninhalt <span class="formula">A</span>, Winkel <span class="formula">α</span> (gegenüber <span class="formula">a</span>) und Höhe <span class="formula">h<sub>c</sub></span>.',
+        inputs: [{ label: 'Hypotenuse c (cm)', key: 'c', type: 'number' }, { label: 'Flächeninhalt A (cm²)', key: 'A', type: 'number' }, { label: 'Winkel α (°)', key: 'alpha', type: 'number' }, { label: 'Höhe h<sub>c</sub> (cm)', key: 'hc', type: 'number' }],
+        validate: (vals) => Math.abs(vals.c - 10) < 0.01 && Math.abs(vals.A - 24) < 0.01 && Math.abs(vals.alpha - 36.87) < 0.5 && Math.abs(vals.hc - 4.8) < 0.01,
+        hints: ['Tipp: <span class=\'formula\'>c = √(a² + b²) = √(36 + 64)</span>.', 'Tipp: <span class=\'formula\'>A = (a · b) / 2</span>. <span class=\'formula\'>sin(α) = a/c = 6/10 = 0,6</span>.', 'Tipp: <span class=\'formula\'>h<sub>c</sub> = (a · b) / c = 48 / 10</span>.'],
+        solution: [{ step: '<span class=\'formula\'>c = √(6² + 8²) = √100 = 10</span> cm', comment: 'Satz des Pythagoras (3-4-5-Tripel, skaliert mit 2).' }, { step: '<span class=\'formula\'>A = (6 · 8) / 2 = 24</span> cm²', comment: 'Flächenformel rechtwinkliges Dreieck.' }, { step: '<span class=\'formula\'>sin(α) = 6/10 = 0,6 ⇒ α ≈ 36,87°</span>', comment: 'Trigonometrie im rechtwinkligen Dreieck.' }, { step: '<span class=\'formula\'>h<sub>c</sub> = (6 · 8) / 10 = 4,8</span> cm', comment: 'Höhe auf Hypotenuse: <span class=\'formula\'>A = (c · h<sub>c</sub>)/2 ⇒ h<sub>c</sub> = 2A/c</span>.' }],
+        answerDisplay: 'c=10cm, A=24cm², α≈36,87°, h<sub>c</sub>=4,8cm'
+      }, {
+        id: 'G2', title: 'NODE 02: Turm-Struktur',
+        problem: '<strong>Szenario:</strong> Ein Kommunikationsturm besteht aus einem Würfel (6 cm Kantenlänge) mit Pyramide (Höhe 4 cm) auf der Spitze.<br><strong>Mission:</strong> Berechne Volumen und Oberfläche des Turms.',
+        inputs: [{ label: 'Volumen V (cm³)', key: 'V', type: 'number' }, { label: 'Oberfläche O (cm²)', key: 'O', type: 'number' }],
+        validate: (vals) => Math.abs(vals.V - 264) < 0.01 && Math.abs(vals.O - 240) < 0.01,
+        hints: ['Tipp: Schräghöhe der Pyramide: <span class=\'formula\'>s = √(3² + 4²) = 5</span> cm (halbe Basis = 3).', 'Tipp: <span class=\'formula\'>V<sub>Würfel</sub> = 6³ = 216</span>. <span class=\'formula\'>V<sub>Pyramide</sub> = (1/3) · 36 · 4 = 48</span>.', 'Tipp: Oberfläche: 5 Würfelflächen (ohne Deckel) + 4 Dreiecke der Pyramide.'],
+        solution: [{ step: '<span class=\'formula\'>V<sub>Würfel</sub> = 6³ = 216</span> cm³', comment: 'Würfelvolumen.' }, { step: '<span class=\'formula\'>s = √(3² + 4²) = 5</span> cm', comment: 'Pythagoras im Pyramidendreieck (3-4-5-Tripel).' }, { step: '<span class=\'formula\'>V<sub>Pyramide</sub> = (1/3) · 36 · 4 = 48</span> cm³', comment: 'Pyramidenformel mit Grundfläche <span class=\'formula\'>6·6 = 36</span>.' }, { step: '<span class=\'formula\'>V = 216 + 48 = 264</span> cm³', comment: 'Addition der Teilvolumina.' }, { step: '<span class=\'formula\'>O<sub>Würfel</sub>(ohne Deckel) = 5 · 36 = 180</span> cm²', comment: 'Nur 5 Seitenflächen, da die obere abgedeckt ist.' }, { step: '<span class=\'formula\'>Mantel<sub>Pyramide</sub> = 4 · (6·5)/2 = 60</span> cm²', comment: '4 gleichschenklige Dreiecke mit Basis 6 und Höhe 5.' }, { step: '<span class=\'formula\'>O = 180 + 60 = 240</span> cm²', comment: 'Summe aller Außenflächen.' }],
+        answerDisplay: 'V = 264 cm³, O = 240 cm²'
+      }, {
+        id: 'G3', title: 'NODE 03: Dreiecksberechnung',
+        problem: '<strong>Szenario:</strong> Ein Navigations-Dreieck hat Seiten <span class="formula">a = 13 cm</span>, <span class="formula">b = 14 cm</span>, <span class="formula">c = 15 cm</span>.<br><strong>Mission:</strong> Berechne Winkel <span class="formula">β</span> mit dem Kosinussatz, Flächeninhalt mit Heron und Höhe <span class="formula">h<sub>b</sub></span>.',
+        inputs: [{ label: 'Winkel β (°)', key: 'beta', type: 'number' }, { label: 'Flächeninhalt A (cm²)', key: 'A', type: 'number' }, { label: 'Höhe h<sub>b</sub> (cm)', key: 'hb', type: 'number' }],
+        validate: (vals) => Math.abs(vals.beta - 59.5) < 1 && Math.abs(vals.A - 84) < 0.01 && Math.abs(vals.hb - 12) < 0.01,
+        hints: ['Tipp: Kosinussatz: <span class=\'formula\'>b² = a² + c² - 2ac·cos(β)</span>. Löse nach <span class=\'formula\'>cos(β)</span> auf.', 'Tipp: Heron: <span class=\'formula\'>s = (13+14+15)/2 = 21</span>. <span class=\'formula\'>A = √(21·8·7·6)</span>.', 'Tipp: <span class=\'formula\'>h<sub>b</sub> = 2A / b</span>.'],
+        solution: [{ step: '<span class=\'formula\'>cos(β) = (a² + c² - b²) / (2ac) = (169 + 225 - 196) / 390 = 198/390 = 33/65</span>', comment: 'Kosinussatz umgestellt. <span class=\'formula\'>198/390 = 0,5077</span>.' }, { step: '<span class=\'formula\'>β ≈ 59,5°</span>', comment: 'Arccos von 0,5077.' }, { step: '<span class=\'formula\'>s = (13+14+15)/2 = 21</span> cm', comment: 'Halber Umfang für Heron.' }, { step: '<span class=\'formula\'>A = √(21·8·7·6) = √7056 = 84</span> cm²', comment: 'Heronsche Formel. <span class=\'formula\'>21·8=168, 168·7=1176, 1176·6=7056</span>.' }, { step: '<span class=\'formula\'>h<sub>b</sub> = 2·84 / 14 = 12</span> cm', comment: 'Flächenformel <span class=\'formula\'>A = (b · h<sub>b</sub>)/2</span> umgestellt.' }],
+        answerDisplay: 'β≈59,5°, A=84cm², h<sub>b</sub>=12cm'
+      }, {
+        id: 'G4', title: 'NODE 04: Raumdiagonale',
+        problem: '<strong>Szenario:</strong> Ein Versorgungsquader hat die Kantenlängen <span class="formula">a = 2 cm</span>, <span class="formula">b = 3 cm</span>, <span class="formula">c = 6 cm</span>.<br><strong>Mission:</strong> Berechne Volumen, Oberfläche und Raumdiagonale.',
+        inputs: [{ label: 'Volumen V (cm³)', key: 'V', type: 'number' }, { label: 'Oberfläche O (cm²)', key: 'O', type: 'number' }, { label: 'Raumdiagonale d (cm)', key: 'd', type: 'number' }],
+        validate: (vals) => Math.abs(vals.V - 36) < 0.01 && Math.abs(vals.O - 72) < 0.01 && Math.abs(vals.d - 7) < 0.01,
+        hints: ['Tipp: <span class=\'formula\'>V = a · b · c</span>.', 'Tipp: <span class=\'formula\'>O = 2(ab + bc + ac)</span>.', 'Tipp: <span class=\'formula\'>d = √(a² + b² + c²) = √(4 + 9 + 36)</span>.'],
+        solution: [{ step: '<span class=\'formula\'>V = 2 · 3 · 6 = 36</span> cm³', comment: 'Quadervolumen.' }, { step: '<span class=\'formula\'>O = 2(6 + 18 + 12) = 2 · 36 = 72</span> cm²', comment: 'Oberfläche eines Quaders.' }, { step: '<span class=\'formula\'>d = √(2² + 3² + 6²) = √(4 + 9 + 36) = √49 = 7</span> cm', comment: 'Satz des Pythagoras im Raum. <span class=\'formula\'>2-3-6-7</span> ist ein spezielles Tripel.' }],
+        answerDisplay: 'V=36cm³, O=72cm², d=7cm'
+      }, {
+        id: 'G5', title: 'NODE 05: Trapez-Struktur',
+        problem: '<strong>Szenario:</strong> Ein gleichschenkliges Trapez hat die parallelen Seiten <span class="formula">a = 10 cm</span> und <span class="formula">c = 4 cm</span> sowie die Höhe <span class="formula">h = 4 cm</span>.<br><strong>Mission:</strong> Berechne die Länge der nicht-parallelen Seiten, den Umfang und den Flächeninhalt.',
+        inputs: [{ label: 'Seitenlänge (cm)', key: 'side', type: 'number' }, { label: 'Umfang U (cm)', key: 'U', type: 'number' }, { label: 'Flächeninhalt A (cm²)', key: 'A', type: 'number' }],
+        validate: (vals) => Math.abs(vals.side - 5) < 0.01 && Math.abs(vals.U - 24) < 0.01 && Math.abs(vals.A - 28) < 0.01,
+        hints: ['Tipp: Die horizontale Überstand ist <span class=\'formula\'>(10 - 4)/2 = 3</span> cm pro Seite.', 'Tipp: Die schräge Seite ist die Hypotenuse eines rechtwinkligen Dreiecks mit Katheten 3 und 4.', 'Tipp: <span class=\'formula\'>A = (a + c)/2 · h</span>.'],
+        solution: [{ step: '<span class=\'formula\'>Horizontale Differenz = (10 - 4)/2 = 3</span> cm', comment: 'Symmetrie des gleichschenkligen Trapezes.' }, { step: '<span class=\'formula\'>Seite = √(3² + 4²) = √25 = 5</span> cm', comment: 'Pythagoras im Hilfsdreieck (3-4-5-Tripel).' }, { step: '<span class=\'formula\'>U = 10 + 4 + 5 + 5 = 24</span> cm', comment: 'Summe aller Seiten.' }, { step: '<span class=\'formula\'>A = (10 + 4)/2 · 4 = 7 · 4 = 28</span> cm²', comment: 'Trapezflächenformel.' }],
+        answerDisplay: 'Seite=5cm, U=24cm, A=28cm²'
+      }]
+  },
+{
+    id: 'S', name: 'Stochastik', color: '#aa55ff',
+    exercises: [{
+        id: 'S1', title: 'NODE 01: Zweistufige Datenabfrage',
+        problem: '<strong>Szenario:</strong> Ein Datenserver hat 3 rote und 2 blaue Speicherkristalle. Ziehe zweimal <em>mit</em> Zurücklegen.<br><strong>Mission:</strong> Zeichne das Baumdiagramm und berechne <span class="formula">P</span>(gleiche Farbe) und <span class="formula">P</span>(verschiedene Farben).',
+        inputs: [{ label: 'P(gleiche Farbe) als gekürzter Bruch', key: 'same', type: 'text' }, { label: 'P(verschieden) als gekürzter Bruch', key: 'diff', type: 'text' }],
+        validate: (vals) => { const s = (vals.same || '').replace(/\s/g, ''); const d = (vals.diff || '').replace(/\s/g, ''); return (s === '13/25' || s === '0,52') && (d === '12/25' || d === '0,48'); },
+        hints: ['Tipp: <span class=\'formula\'>P(rot) = 3/5, P(blau) = 2/5</span>. Baumdiagramm: 1. Stufe rot/blau, 2. Stufe gleich.', 'Tipp: <span class=\'formula\'>P(gleich) = (3/5)² + (2/5)² = 9/25 + 4/25</span>.', 'Tipp: <span class=\'formula\'>P(verschieden) = 2 · (3/5) · (2/5) = 12/25</span>. Oder <span class=\'formula\'>1 - 13/25</span>.'],
+        solution: [{ step: '<span class=\'formula\'>P(rot) = 3/5, P(blau) = 2/5</span>', comment: 'Laplace-Wahrscheinlichkeiten.' }, { step: '<span class=\'formula\'>P(gleiche Farbe) = (3/5)² + (2/5)² = 9/25 + 4/25 = 13/25</span>', comment: 'Zwei Pfade: rot-rot oder blau-blau.' }, { step: '<span class=\'formula\'>P(verschieden) = 2 · (3/5) · (2/5) = 12/25</span>', comment: 'Zwei Pfade: rot-blau oder blau-rot.' }, { step: 'Kontrolle: <span class=\'formula\'>13/25 + 12/25 = 25/25 = 1</span> ✓', comment: 'Gegenereignis-Check.' }],
+        answerDisplay: 'P(gleich) = 13/25, P(verschieden) = 12/25'
+      }, {
+        id: 'S2', title: 'NODE 02: Ohne Zurücklegen',
+        problem: '<strong>Szenario:</strong> Eine Sicherheitsbox enthält 4 rote und 4 blaue Quanten-Murmeln. Ziehe 2 <em>ohne</em> Zurücklegen.<br><strong>Mission:</strong> Berechne die Wahrscheinlichkeit für "mindestens eine blaue Murmel".',
+        inputs: [{ label: 'P(mindestens eine blaue)', key: 'prob', type: 'text' }],
+        validate: (vals) => { const p = (vals.prob || '').replace(/\s/g, '').replace(',', '.'); return p === '11/14' || p === '0,7857' || p === '0.7857' || (p.includes('11') && p.includes('14')); },
+        hints: ['Tipp: Gegenereignis: <span class=\'formula\'>P(zwei rote) = (4/8) · (3/7)</span>.', 'Tipp: <span class=\'formula\'>P(zwei rote) = 12/56 = 3/14</span>.', 'Tipp: <span class=\'formula\'>P(mindestens eine blaue) = 1 - 3/14</span>.'],
+        solution: [{ step: '<span class=\'formula\'>P(zwei rote) = (4/8) · (3/7) = 12/56 = 3/14</span>', comment: 'Ohne Zurücklegen: Hypergeometrische Bedingung.' }, { step: '<span class=\'formula\'>P(mindestens eine blaue) = 1 - 3/14 = 11/14</span>', comment: 'Gegenereignis-Regel.' }, { step: 'Alternative: <span class=\'formula\'>P(genau eine blaue) = 2·(4/8)·(4/7) = 32/56 = 4/7</span>', comment: 'Zwei Pfade: rot-blau, blau-rot.' }, { step: '<span class=\'formula\'>P(zwei blaue) = (4/8)·(3/7) = 12/56 = 3/14</span>', comment: 'Beide blau.' }, { step: 'Summe: <span class=\'formula\'>4/7 + 3/14 = 8/14 + 3/14 = 11/14</span> ✓', comment: 'Kontrolle über alle Fälle.' }],
+        answerDisplay: 'P(mindestens eine blaue) = 11/14 ≈ 78,6 %'
+      }, {
+        id: 'S3', title: 'NODE 03: Erwartungswert-Protokoll',
+        problem: '<strong>Szenario:</strong> Ein faires Glücksspiel-Modul: Bei Würfelwurf 6 → 10 Credits, 5 oder 4 → 4 Credits, sonst 0. Einsatz: 3 Credits.<br><strong>Mission:</strong> Berechne den Erwartungswert. Ist das Spiel fair?',
+        inputs: [{ label: 'Erwartungswert E(X) (Credits)', key: 'exp', type: 'number' }, { label: 'Spiel fair? (ja/nein)', key: 'fair', type: 'text' }],
+        validate: (vals) => Math.abs(vals.exp - 3) < 0.01 && /^(ja|yes|fair|richtig)$/i.test(vals.fair || ''),
+        hints: ['Tipp: <span class=\'formula\'>P(6) = 1/6, P(5 oder 4) = 2/6 = 1/3, P(sonst) = 1/2</span>.', 'Tipp: <span class=\'formula\'>E(X) = (1/6)·10 + (1/3)·4 + (1/2)·0</span>.', 'Tipp: Ein Spiel ist fair, wenn <span class=\'formula\'>E(X) = Einsatz</span>.'],
+        solution: [{ step: '<span class=\'formula\'>P(6) = 1/6, P(5 oder 4) = 2/6 = 1/3, P(sonst) = 3/6 = 1/2</span>', comment: 'Wahrscheinlichkeiten am Laplace-Würfel.' }, { step: '<span class=\'formula\'>E(X) = (1/6)·10 + (1/3)·4 + 0 = 10/6 + 4/3 = 10/6 + 8/6 = 18/6 = 3</span>', comment: 'Erwartungswertformel.' }, { step: '<span class=\'formula\'>Einsatz = 3</span> Credits, <span class=\'formula\'>E(X) = 3</span> Credits', comment: 'Vergleich.' }, { step: 'Nettoerwartungswert = 0. Das Spiel ist fair.', comment: 'Fairness-Definition: <span class=\'formula\'>E(X) = Einsatz</span>.' }],
+        answerDisplay: 'E(X) = 3 Credits, Spiel ist fair'
+      }, {
+        id: 'S4', title: 'NODE 04: Würfelsumme',
+        problem: '<strong>Szenario:</strong> Ein Fairness-Modul würfelt zweimal mit einem Standardwürfel.<br><strong>Mission:</strong> Berechne die Wahrscheinlichkeit, dass die Augensumme mindestens 10 beträgt.',
+        inputs: [{ label: 'P(Summe ≥ 10) als gekürzter Bruch', key: 'prob', type: 'text' }],
+        validate: (vals) => { const p = (vals.prob || '').replace(/\s/g, ''); return p === '1/6' || p === '6/36'; },
+        hints: ['Tipp: Liste alle Paare mit Summe ≥ 10 auf: (4,6), (5,5), (5,6), (6,4), (6,5), (6,6).', 'Tipp: Es gibt 6 günstige Ergebnisse bei insgesamt <span class=\'formula\'>6·6 = 36</span> möglichen.', 'Tipp: <span class=\'formula\'>P = 6/36</span>. Kürze den Bruch.'],
+        solution: [{ step: 'Günstige Paare: <span class=\'formula\'>(4,6), (5,5), (5,6), (6,4), (6,5), (6,6)</span>', comment: 'Systematisches Auflisten aller Kombinationen mit Summe ≥ 10.' }, { step: '<span class=\'formula\'>|Ω| = 36</span>', comment: 'Laplace-Raum: 6·6 mögliche Ausgänge beim zweimaligen Würfeln.' }, { step: '<span class=\'formula\'>P(Summe ≥ 10) = 6/36 = 1/6</span>', comment: 'Kürzen durch 6.' }],
+        answerDisplay: 'P = 1/6'
+      }, {
+        id: 'S5', title: 'NODE 05: Binomialtest',
+        problem: '<strong>Szenario:</strong> Ein Heilungs-Algorithmus wirkt bei 50 % der Naniten. 4 Naniten werden behandelt.<br><strong>Mission:</strong> Berechne die Wahrscheinlichkeit, dass <em>genau 2</em> Naniten geheilt werden.',
+        inputs: [{ label: 'P(genau 2 Heilungen)', key: 'prob', type: 'text' }],
+        validate: (vals) => { const p = (vals.prob || '').replace(/\s/g, ''); return p === '3/8' || p === '6/16' || p === '0,375'; },
+        hints: ['Tipp: Anzahl der Möglichkeiten, 2 aus 4 auszuwählen: <span class=\'formula\'>C(4,2) = 6</span>.', 'Tipp: Jeder einzelne Pfad mit genau 2 Erfolgen hat die Wahrscheinlichkeit <span class=\'formula\'>(1/2)⁴ = 1/16</span>.', 'Tipp: <span class=\'formula\'>P = 6 · (1/16) = 6/16</span>. Kürze!'],
+        solution: [{ step: '<span class=\'formula\'>C(4,2) = 6</span>', comment: 'Anzahl der günstigen Kombinationen (Binomialkoeffizient).' }, { step: '<span class=\'formula\'>P(einzelner Pfad) = (1/2)⁴ = 1/16</span>', comment: 'Jede Heilung hat <span class=\'formula\'>p = 0,5</span>, 4 unabhängige Versuche.' }, { step: '<span class=\'formula\'>P(genau 2) = 6 · 1/16 = 6/16 = 3/8</span>', comment: 'Multiplikation der Anzahl mit der Einzelwahrscheinlichkeit und kürzen.' }],
+        answerDisplay: 'P = 3/8 = 0,375 = 37,5 %'
+      }]
+  },
+{
+    id: 'T', name: 'Trigonometrie', color: '#ff3333',
+    exercises: [{
+        id: 'T1', title: 'NODE 01: Schwingungsmodul',
+        problem: '<strong>Szenario:</strong> Ein Antigrav-Schaukel wird durch <span class="formula">h(t) = 20·sin(30°·t) + 30</span> modelliert (<span class="formula">t</span> in s, <span class="formula">h</span> in cm).<br><strong>Mission:</strong> Bestimme Max, Min, Periode. Berechne <span class="formula">h(1)</span>, <span class="formula">h(3)</span>, <span class="formula">h(5)</span>. Wann erreicht sie erstmals wieder die Mittellinie?',
+        inputs: [{ label: 'Maximum (cm)', key: 'max', type: 'number' }, { label: 'Minimum (cm)', key: 'min', type: 'number' }, { label: 'Periode (s)', key: 'period', type: 'number' }, { label: 'h(1) (cm)', key: 'h1', type: 'number' }, { label: 'h(3) (cm)', key: 'h3', type: 'number' }, { label: 'h(5) (cm)', key: 'h5', type: 'number' }, { label: 'Erstmittellinie bei t = (s)', key: 'tmid', type: 'number' }],
+        validate: (vals) => Math.abs(vals.max - 50) < 0.01 && Math.abs(vals.min - 10) < 0.01 && Math.abs(vals.period - 12) < 0.01 && Math.abs(vals.h1 - 40) < 0.01 && Math.abs(vals.h3 - 50) < 0.01 && Math.abs(vals.h5 - 40) < 0.01 && Math.abs(vals.tmid - 6) < 0.01,
+        hints: ['Tipp: Amplitude = 20, Mittellinie = 30. Max = 30+20, Min = 30-20.', 'Tipp: Periode <span class=\'formula\'>T = 360° / 30° = 12</span> s.', 'Tipp: <span class=\'formula\'>sin(30°)=0,5; sin(90°)=1; sin(150°)=0,5</span>. Mittellinie: <span class=\'formula\'>sin(30t)=0 ⇒ 30t=180°</span>.'],
+        solution: [{ step: '<span class=\'formula\'>Max = 30 + 20 = 50</span> cm, <span class=\'formula\'>Min = 30 - 20 = 10</span> cm', comment: 'Amplitude um Mittellinie.' }, { step: '<span class=\'formula\'>T = 360° / 30° = 12</span> s', comment: 'Periodenformel für <span class=\'formula\'>sin(b·t): T = 360°/b</span>.' }, { step: '<span class=\'formula\'>h(1) = 20·0,5 + 30 = 40</span> cm', comment: '<span class=\'formula\'>sin(30°) = 0,5</span>.' }, { step: '<span class=\'formula\'>h(3) = 20·1 + 30 = 50</span> cm', comment: '<span class=\'formula\'>sin(90°) = 1</span> (Maximum).' }, { step: '<span class=\'formula\'>h(5) = 20·0,5 + 30 = 40</span> cm', comment: '<span class=\'formula\'>sin(150°) = 0,5</span>.' }, { step: 'Mittellinie: <span class=\'formula\'>20·sin(30t) = 0 ⇒ 30t = 180° ⇒ t = 6</span> s', comment: 'Erste positive Nullstelle der Sinusfunktion.' }],
+        answerDisplay: 'Max=50, Min=10, T=12s, h(1)=40, h(3)=50, h(5)=40, Mittellinie bei t=6s'
+      }, {
+        id: 'T2', title: 'NODE 02: Einheitskreis-Decoder',
+        problem: '<strong>Szenario:</strong> Der Einheitskreis-Decoder benötigt exakte trigonometrische Werte.<br><strong>Mission:</strong> Bestimme <em>ohne Taschenrechner</em>: <span class="formula">sin(150°)</span>, <span class="formula">cos(240°)</span>, <span class="formula">tan(315°)</span>, <span class="formula">sin(210°)</span>, <span class="formula">cos(120°)</span>.',
+        inputs: [{ label: 'sin(150°)', key: 's1', type: 'text' }, { label: 'cos(240°)', key: 'c2', type: 'text' }, { label: 'tan(315°)', key: 't3', type: 'text' }, { label: 'sin(210°)', key: 's4', type: 'text' }, { label: 'cos(120°)', key: 'c5', type: 'text' }],
+        validate: (vals) => { const norm = (v) => (v || '').replace(/,/g, '.').replace(/\s/g, '').replace(/^\+/, ''); return norm(vals.s1) === '0.5' && norm(vals.c2) === '-0.5' && norm(vals.t3) === '-1' && norm(vals.s4) === '-0.5' && norm(vals.c5) === '-0.5'; },
+        hints: ['Tipp: <span class=\'formula\'>sin(150°) = sin(180°-30°) = sin(30°)</span>. Spiegelung an y-Achse.', 'Tipp: <span class=\'formula\'>cos(240°) = cos(180°+60°) = -cos(60°)</span>. Spiegelung am Ursprung.', 'Tipp: <span class=\'formula\'>tan(315°) = tan(360°-45°) = -tan(45°)</span>. Spiegelung an x-Achse.'],
+        solution: [{ step: '<span class=\'formula\'>sin(150°) = sin(180° - 30°) = sin(30°) = 0,5</span>', comment: 'Supplementbeziehung: <span class=\'formula\'>sin(180°-α) = sin(α)</span>.' }, { step: '<span class=\'formula\'>cos(240°) = cos(180° + 60°) = -cos(60°) = -0,5</span>', comment: '<span class=\'formula\'>cos(180°+α) = -cos(α)</span>.' }, { step: '<span class=\'formula\'>tan(315°) = tan(360° - 45°) = -tan(45°) = -1</span>', comment: '<span class=\'formula\'>tan(360°-α) = -tan(α)</span>.' }, { step: '<span class=\'formula\'>sin(210°) = sin(180° + 30°) = -sin(30°) = -0,5</span>', comment: '<span class=\'formula\'>sin(180°+α) = -sin(α)</span>.' }, { step: '<span class=\'formula\'>cos(120°) = cos(180° - 60°) = -cos(60°) = -0,5</span>', comment: '<span class=\'formula\'>cos(180°-α) = -cos(α)</span>.' }],
+        answerDisplay: '0,5; -0,5; -1; -0,5; -0,5'
+      }, {
+        id: 'T3', title: 'NODE 03: Trigonometrische Entschlüsselung',
+        problem: '<strong>Szenario:</strong> Ein verschlüsseltes Signal folgt der Gleichung <span class="formula">2·sin²(x) - sin(x) = 0</span> im Intervall <span class="formula">[0°; 360°]</span>.<br><strong>Mission:</strong> Finde alle Lösungen.',
+        inputs: [{ label: 'Lösungsmenge (z.B. 0;30;150;180;360)', key: 'sol', type: 'text' }],
+        validate: (vals) => { const s = (vals.sol || '').toLowerCase().replace(/[^0-9;,.\-°\s]/g, ''); return s.includes('0') && s.includes('30') && s.includes('150') && s.includes('180') && s.includes('360'); },
+        hints: ['Tipp: Klammere <span class=\'formula\'>sin(x)</span> aus: <span class=\'formula\'>sin(x)·(2·sin(x) - 1) = 0</span>.', 'Tipp: Fall 1: <span class=\'formula\'>sin(x) = 0</span>. Fall 2: <span class=\'formula\'>sin(x) = 0,5</span>.', 'Tipp: <span class=\'formula\'>sin(x)=0</span> bei <span class=\'formula\'>0°, 180°, 360°</span>. <span class=\'formula\'>sin(x)=0,5</span> bei <span class=\'formula\'>30°, 150°</span>.'],
+        solution: [{ step: '<span class=\'formula\'>sin(x)·(2·sin(x) - 1) = 0</span>', comment: 'Ausklammern des gemeinsamen Faktors <span class=\'formula\'>sin(x)</span>.' }, { step: 'Fall 1: <span class=\'formula\'>sin(x) = 0 ⇒ x = 0°, 180°, 360°</span>', comment: 'Nullstellen des Sinus im Intervall.' }, { step: 'Fall 2: <span class=\'formula\'>sin(x) = 0,5 ⇒ x = 30°, 150°</span>', comment: 'Standardwert, zwei Lösungen im Intervall.' }, { step: '<span class=\'formula\'>L = {0°; 30°; 150°; 180°; 360°}</span>', comment: 'Vereinigung aller Lösungen, sortiert.' }],
+        answerDisplay: 'L = {0°; 30°; 150°; 180°; 360°}'
+      }, {
+        id: 'T4', title: 'NODE 04: Exakte Werte',
+        problem: '<strong>Szenario:</strong> Der KI-Kern benötigt einen exakten trigonometrischen Schlüsselwert ohne Taschenrechner.<br><strong>Mission:</strong> Berechne den exakten Wert von <span class="formula">sin(60°)·cos(30°) + tan(45°)</span> als gekürzten Bruch.',
+        inputs: [{ label: 'Exakter Wert (Bruch, z.B. 7/4)', key: 'val', type: 'text' }],
+        validate: (vals) => { const v = (vals.val || '').replace(/\s/g, '').replace(',', '.'); return v === '7/4' || v === '1.75' || v === '1,75'; },
+        hints: ['Tipp: <span class=\'formula\'>sin(60°) = √3/2, cos(30°) = √3/2, tan(45°) = 1</span>.', 'Tipp: <span class=\'formula\'>√3/2 · √3/2 = 3/4</span>.', 'Tipp: <span class=\'formula\'>3/4 + 1 = 3/4 + 4/4</span>.'],
+        solution: [{ step: '<span class=\'formula\'>sin(60°) = √3/2, cos(30°) = √3/2, tan(45°) = 1</span>', comment: 'Standardwerte am Einheitskreis.' }, { step: '<span class=\'formula\'>sin(60°)·cos(30°) = (√3/2)·(√3/2) = 3/4</span>', comment: '<span class=\'formula\'>√3·√3 = 3, 2·2 = 4</span>.' }, { step: '<span class=\'formula\'>3/4 + 1 = 3/4 + 4/4 = 7/4</span>', comment: 'Gleicher Nenner.' }],
+        answerDisplay: '7/4 = 1,75'
+      }, {
+        id: 'T5', title: 'NODE 05: Sinus-Parameter',
+        problem: '<strong>Szenario:</strong> Ein Schwingungsmodul wird durch <span class="formula">f(x) = 3·sin(2x)</span> beschrieben.<br><strong>Mission:</strong> Bestimme Amplitude, Periode (in Grad) und die ersten 3 positiven Nullstellen.',
+        inputs: [{ label: 'Amplitude', key: 'amp', type: 'number' }, { label: 'Periode (°)', key: 'period', type: 'number' }, { label: 'Nullstellen (z.B. 0;90;180)', key: 'zeros', type: 'text' }],
+        validate: (vals) => { const z = (vals.zeros || '').replace(/[^0-9;,.\-°\s]/g, ''); return Math.abs(vals.amp - 3) < 0.01 && Math.abs(vals.period - 180) < 0.01 && z.includes('0') && z.includes('90') && z.includes('180'); },
+        hints: ['Tipp: Allgemeine Form: <span class=\'formula\'>f(x) = A·sin(b·x)</span>. Amplitude = <span class=\'formula\'>|A|</span>.', 'Tipp: Periode: <span class=\'formula\'>T = 360° / b = 360°/2</span>.', 'Tipp: Nullstellen: <span class=\'formula\'>sin(2x) = 0 ⇒ 2x = 0°, 180°, 360°</span>.'],
+        solution: [{ step: '<span class=\'formula\'>A = 3</span>', comment: 'Amplitude ist der Betrag des Vorfaktors vor dem Sinus.' }, { step: '<span class=\'formula\'>T = 360° / 2 = 180°</span>', comment: 'Periodenformel.' }, { step: '<span class=\'formula\'>sin(2x) = 0 ⇒ 2x = 0°, 180°, 360°</span>', comment: 'Nullstellen des Sinus in einer Periode.' }, { step: '<span class=\'formula\'>x = 0°, 90°, 180°</span>', comment: 'Division durch 2.' }],
+        answerDisplay: 'A=3, T=180°, N: {0°; 90°; 180°}'
+      }]
+  },
+{
+    id: 'L', name: 'Logarithmen & Exponential', color: '#ff8800',
+    exercises: [{
+        id: 'L1', title: 'NODE 01: Halbwertszeit-Monitor',
+        problem: '<strong>Szenario:</strong> Ein Medikament wird abgebaut. Nach 2 Stunden sind noch 25 % vorhanden.<br><strong>Mission:</strong> Berechne den stündlichen Abklingfaktor und die Halbwertszeit. Wie viel % nach 4 h? Nach wie vielen h sind noch 3,125 % vorhanden?',
+        inputs: [{ label: 'Abklingfaktor a', key: 'a', type: 'number' }, { label: 'Halbwertszeit T (h)', key: 'thalf', type: 'number' }, { label: 'Rest nach 4 h (%)', key: 'p4', type: 'number' }, { label: '3,125 % nach (h)', key: 't3', type: 'number' }],
+        validate: (vals) => Math.abs(vals.a - 0.5) < 0.01 && Math.abs(vals.thalf - 1) < 0.01 && Math.abs(vals.p4 - 6.25) < 0.01 && Math.abs(vals.t3 - 5) < 0.01,
+        hints: ['Tipp: <span class=\'formula\'>a² = 0,25 = 1/4</span>. Ziehe die positive Wurzel.', 'Tipp: Halbwertszeit: <span class=\'formula\'>a^T = 0,5</span>. Da <span class=\'formula\'>a = 0,5</span>, folgt <span class=\'formula\'>T = 1</span>.', 'Tipp: <span class=\'formula\'>3,125 % = 0,03125 = 1/32 = (1/2)⁵</span>.'],
+        solution: [{ step: '<span class=\'formula\'>a² = 0,25 = 1/4 ⇒ a = 0,5</span>', comment: 'Wurzelziehen, nur positive Lösung sinnvoll.' }, { step: '<span class=\'formula\'>Halbwertszeit: 0,5^T = 0,5 ⇒ T = 1</span> h', comment: 'Exponent vergleichen.' }, { step: 'Nach 4 h: <span class=\'formula\'>0,5⁴ = 0,0625 = 6,25 %</span>', comment: 'Potenzgesetz.' }, { step: '<span class=\'formula\'>3,125 % = 0,03125 = 1/32 = 0,5⁵ ⇒ t = 5</span> h', comment: '1/32 als Potenz von 1/2 erkennen.' }],
+        answerDisplay: 'a=0,5, T=1h, nach 4h: 6,25%, 3,125% nach 5h'
+      }, {
+        id: 'L2', title: 'NODE 02: Dezibel-Scanner',
+        problem: '<strong>Szenario:</strong> Lautstärke-Formel: <span class="formula">L = 10·log<sub>10</sub>(I/I<sub>0</sub>)</span>.<br><strong>Daten:</strong> Staubsauger-Drone: 70 dB. Bohrhammer-Drone: 100 dB.<br><strong>Mission:</strong> Berechne das Intensitätsverhältnis <span class="formula">I<sub>Bohr</sub>/I<sub>Saug</sub></span>. Wie viele Staubsauger (70 dB) ergeben zusammen 80 dB?',
+        inputs: [{ label: 'Intensitätsverhältnis', key: 'ratio', type: 'number' }, { label: 'Anzahl Staubsauger für 80 dB', key: 'n', type: 'number' }],
+        validate: (vals) => Math.abs(vals.ratio - 1000) < 0.01 && Math.abs(vals.n - 10) < 0.01,
+        hints: ['Tipp: <span class=\'formula\'>100 - 70 = 30</span> dB <span class=\'formula\'>= 10·log(I<sub>B</sub>/I<sub>S</sub>) ⇒ log(...) = 3</span>.', 'Tipp: <span class=\'formula\'>80 = 70 + 10·log(n) ⇒ log(n) = 1</span>.', 'Tipp: <span class=\'formula\'>log<sub>10</sub>(1000) = 3, log<sub>10</sub>(10) = 1</span>.'],
+        solution: [{ step: '<span class=\'formula\'>30 = 10·log(I<sub>B</sub>/I<sub>S</sub>) ⇒ log(I<sub>B</sub>/I<sub>S</sub>) = 3</span>', comment: 'Differenz der Dezibelwerte.' }, { step: '<span class=\'formula\'>I<sub>Bohr</sub> / I<sub>Saug</sub> = 10³ = 1000</span>', comment: 'Logarithmusdefinition: <span class=\'formula\'>10³ = 1000</span>.' }, { step: '<span class=\'formula\'>80 = 70 + 10·log(n) ⇒ 10 = 10·log(n) ⇒ log(n) = 1</span>', comment: 'n gleiche Schallquellen addieren Intensitäten.' }, { step: '<span class=\'formula\'>n = 10¹ = 10</span>', comment: 'Logarithmus auflösen.' }],
+        answerDisplay: 'Verhältnis = 1000, 10 Staubsauger'
+      }, {
+        id: 'L3', title: 'NODE 03: Verdopplungszeit',
+        problem: '<strong>Szenario:</strong> Eine Naniten-Kultur verdoppelt sich alle 2 Stunden. Start: 50 Einheiten.<br><strong>Mission:</strong> Nach wie vielen Stunden sind es 1600? Löse mit Logarithmus und führe eine Probe durch.',
+        inputs: [{ label: 'Zeit t (h)', key: 't', type: 'number' }],
+        validate: (vals) => Math.abs(vals.t - 10) < 0.01,
+        hints: ['Tipp: <span class=\'formula\'>N(t) = 50 · 2^(t/2)</span>. Setze gleich 1600.', 'Tipp: <span class=\'formula\'>2^(t/2) = 32</span>. Schreibe 32 als Potenz von 2.', 'Tipp: <span class=\'formula\'>32 = 2⁵</span>. Also <span class=\'formula\'>t/2 = 5</span>.'],
+        solution: [{ step: '<span class=\'formula\'>50 · 2^(t/2) = 1600 ⇒ 2^(t/2) = 32</span>', comment: 'Division durch 50.' }, { step: '<span class=\'formula\'>32 = 2⁵ ⇒ t/2 = 5</span>', comment: 'Gleiche Basis, Exponenten vergleichen.' }, { step: '<span class=\'formula\'>t = 10</span> h', comment: 'Multiplikation mit 2.' }, { step: 'Logarithmisch: <span class=\'formula\'>log₂(32) = 5 ⇒ t/2 = 5 ⇒ t = 10</span>', comment: 'Alternative Lösung via Logarithmus.' }, { step: 'Probe: <span class=\'formula\'>N(10) = 50 · 2⁵ = 50 · 32 = 1600</span> ✓', comment: 'Verifizierung.' }],
+        answerDisplay: 't = 10 Stunden'
+      }, {
+        id: 'L4', title: 'NODE 04: Exponentialgleichung',
+        problem: '<strong>Szenario:</strong> Ein Verschlüsselungsmodul verwendet exponentielle Schlüssel.<br><strong>Mission:</strong> Löse die Gleichung <span class="formula">5^(2x) = 625</span>.',
+        inputs: [{ label: 'x', key: 'x', type: 'number' }],
+        validate: (vals) => Math.abs(vals.x - 2) < 0.01,
+        hints: ['Tipp: Schreibe 625 als Potenz von 5.', 'Tipp: <span class=\'formula\'>625 = 5⁴</span>.', 'Tipp: Gleiche Basis: <span class=\'formula\'>5^(2x) = 5⁴ ⇒ 2x = 4</span>.'],
+        solution: [{ step: '<span class=\'formula\'>625 = 5⁴</span>', comment: 'Potenzdarstellung der rechten Seite.' }, { step: '<span class=\'formula\'>5^(2x) = 5⁴</span>', comment: 'Gleiche Basis auf beiden Seiten.' }, { step: '<span class=\'formula\'>2x = 4 ⇒ x = 2</span>', comment: 'Exponenten vergleichen.' }],
+        answerDisplay: 'x = 2'
+      }, {
+        id: 'L5', title: 'NODE 05: Logarithmische Gleichung',
+        problem: '<strong>Szenario:</strong> Ein Sicherheitsprotokoll verwendet logarithmische Verschlüsselung.<br><strong>Mission:</strong> Löse <span class="formula">log₂(x) + log₂(x-2) = 3</span> und gib die Definitionsmenge an.',
+        inputs: [{ label: 'Lösung x', key: 'x', type: 'number' }, { label: 'Definitionsmenge (z.B. x>2)', key: 'def', type: 'text' }],
+        validate: (vals) => Math.abs(vals.x - 4) < 0.01 && /^(x>2|x\s*>\s*2|\(2;\infty\)|2<x)$/i.test(vals.def || ''),
+        hints: ['Tipp: Logarithmengesetz: <span class=\'formula\'>log₂(x) + log₂(x-2) = log₂(x·(x-2))</span>.', 'Tipp: <span class=\'formula\'>log₂(x·(x-2)) = 3 ⇒ x·(x-2) = 2³ = 8</span>.', 'Tipp: <span class=\'formula\'>x² - 2x - 8 = 0</span>. Löse mit <span class=\'formula\'>p-q</span>-Formel. Definitionsmenge: <span class=\'formula\'>x > 2</span>.'],
+        solution: [{ step: '<span class=\'formula\'>log₂(x·(x-2)) = 3</span>', comment: 'Logarithmengesetz: Summe = Logarithmus des Produkts.' }, { step: '<span class=\'formula\'>x·(x-2) = 2³ = 8</span>', comment: 'Logarithmusdefinition auflösen.' }, { step: '<span class=\'formula\'>x² - 2x - 8 = 0</span>', comment: 'Quadratische Gleichung in Normalform.' }, { step: '<span class=\'formula\'>p-q</span>-Formel: <span class=\'formula\'>x = 1 ± √(1 + 8) = 1 ± 3</span>', comment: '<span class=\'formula\'>p = -2, q = -8</span>.' }, { step: '<span class=\'formula\'>x₁ = 4, x₂ = -2</span>', comment: 'Zwei Lösungen der quadratischen Gleichung.' }, { step: 'Definitionsmenge <span class=\'formula\'>x > 2</span>, also <span class=\'formula\'>x = 4</span>', comment: '<span class=\'formula\'>x₂ = -2</span> ist nicht im Definitionsbereich.' }],
+        answerDisplay: 'x = 4, D = (2; ∞)'
+      }]
+  },
+{
+    id: 'K', name: 'Kreisgeometrie & Strahlensatz', color: '#3388ff',
+    exercises: [{
+        id: 'K1', title: 'NODE 01: Strahlensatz-Scanner',
+        problem: '<strong>Szenario:</strong> Ein 1,80 m großer Android wirft einen 2,40 m langen Schatten. Ein Turm wirft einen 8 m langen Schatten.<br><strong>Mission:</strong> Berechne die Turmhöhe mithilfe des Strahlensatzes.',
+        inputs: [{ label: 'Turmhöhe (m)', key: 'h', type: 'number' }],
+        validate: (vals) => Math.abs(vals.h - 6) < 0.01,
+        hints: ['Tipp: Strahlensatz: <span class=\'formula\'>h<sub>Android</sub> / s<sub>Android</sub> = h<sub>Turm</sub> / s<sub>Turm</sub></span>.', 'Tipp: <span class=\'formula\'>1,80 / 2,40 = h / 8</span>.', 'Tipp: <span class=\'formula\'>1,80 / 2,40 = 0,75</span>. <span class=\'formula\'>h = 0,75 · 8</span>.'],
+        solution: [{ step: '<span class=\'formula\'>1,80 / 2,40 = h<sub>Turm</sub> / 8</span>', comment: 'Strahlensatz bei parallelen Sonnenstrahlen.' }, { step: '<span class=\'formula\'>h<sub>Turm</sub> = (1,80 · 8) / 2,40 = 14,4 / 2,40 = 6</span>', comment: 'Umformen und dividieren.' }, { step: 'Der Turm ist <span class=\'formula\'>6</span> m hoch.', comment: 'Einheitenvorsatz beachten.' }],
+        answerDisplay: '6 m'
+      }, {
+        id: 'K2', title: 'NODE 02: Sektor-zu-Kegel',
+        problem: '<strong>Szenario:</strong> Ein Kreissektor (Radius 12 cm, Winkel 60°) wird zu einem Kegel gerollt.<br><strong>Mission:</strong> Berechne Kegelradius, Mantellinie und das Verhältnis Sektorfläche : Kegelgrundfläche.',
+        inputs: [{ label: 'Kegelradius (cm)', key: 'r', type: 'number' }, { label: 'Mantellinie s (cm)', key: 's', type: 'number' }, { label: 'Verhältnis Sektor : Grundfläche (Zahl)', key: 'ratio', type: 'number' }],
+        validate: (vals) => Math.abs(vals.r - 2) < 0.01 && Math.abs(vals.s - 12) < 0.01 && Math.abs(vals.ratio - 6) < 0.01,
+        hints: ['Tipp: Bogenlänge = <span class=\'formula\'>(60/360) · 2π · 12 = 4π</span>. Das wird zum Umfang der Kegelgrundfläche.', 'Tipp: <span class=\'formula\'>2π · r<sub>Kegel</sub> = 4π ⇒ r<sub>Kegel</sub> = 2</span>.', 'Tipp: Sektorfläche = <span class=\'formula\'>(60/360) · π · 144 = 24π</span>. Grundfläche = <span class=\'formula\'>π · 2² = 4π</span>.'],
+        solution: [{ step: '<span class=\'formula\'>Bogenlänge = (60/360) · 2π · 12 = 4π</span> cm', comment: 'Kreisbogenformel.' }, { step: '<span class=\'formula\'>2π · r<sub>Kegel</sub> = 4π ⇒ r<sub>Kegel</sub> = 2</span> cm', comment: 'Umfanggleichheit beim Rollen.' }, { step: '<span class=\'formula\'>Mantellinie s = 12</span> cm (Sektorradius)', comment: 'Wird zur Mantellinie des Kegels.' }, { step: '<span class=\'formula\'>Sektorfläche = (60/360) · π · 12² = 24π</span> cm²', comment: 'Kreissektorfläche.' }, { step: '<span class=\'formula\'>Kegelgrundfläche = π · 2² = 4π</span> cm²', comment: 'Kreisfläche mit Kegelradius.' }, { step: '<span class=\'formula\'>Verhältnis = 24π / 4π = 6</span>', comment: '<span class=\'formula\'>π</span> kürzt sich heraus.' }],
+        answerDisplay: 'r=2cm, s=12cm, Verhältnis = 6:1'
+      }, {
+        id: 'K3', title: 'NODE 03: Sehnen-Entschlüsselung',
+        problem: '<strong>Szenario:</strong> In einem Kreis sind zwei Sehnen <span class="formula">AB = 8</span> cm (Abstand vom Mittelpunkt: 3 cm) und <span class="formula">CD = 6</span> cm (Abstand: 4 cm).<br><strong>Mission:</strong> Zeige rechnerisch, dass beide Sehnen zum gleichen Kreis gehören, und berechne den Radius.',
+        inputs: [{ label: 'Radius r (cm)', key: 'r', type: 'number' }],
+        validate: (vals) => Math.abs(vals.r - 5) < 0.01,
+        hints: ['Tipp: Halbe Sehne + Abstand = Radius (Pythagoras).', 'Tipp: Für AB: <span class=\'formula\'>(8/2)² + 3² = 4² + 3² = 16 + 9 = 25</span>.', 'Tipp: Für CD: <span class=\'formula\'>(6/2)² + 4² = 3² + 4² = 9 + 16 = 25</span>.'],
+        solution: [{ step: '<span class=\'formula\'>Halbe Sehne AB: 8/2 = 4</span> cm', comment: 'Symmetrie: Der Lotfußpunkt halbiert die Sehne.' }, { step: '<span class=\'formula\'>r² = 4² + 3² = 16 + 9 = 25 ⇒ r = 5</span> cm', comment: 'Satz des Pythagoras im Dreieck Mittelpunkt-Sehnenende-Lotfußpunkt.' }, { step: '<span class=\'formula\'>Halbe Sehne CD: 6/2 = 3</span> cm', comment: 'Analog.' }, { step: '<span class=\'formula\'>r² = 3² + 4² = 9 + 16 = 25 ⇒ r = 5</span> cm', comment: 'Gleicher Radius: beide Sehnen gehören zum gleichen Kreis (3-4-5-Tripel).' }],
+        answerDisplay: 'r = 5 cm'
+      }, {
+        id: 'K4', title: 'NODE 04: Tangenten-Länge',
+        problem: '<strong>Szenario:</strong> Ein Kreis hat Radius <span class="formula">r = 5</span> cm. Ein Punkt <span class="formula">P</span> ist <span class="formula">13</span> cm vom Mittelpunkt entfernt.<br><strong>Mission:</strong> Berechne die Länge der Tangente von <span class="formula">P</span> an den Kreis.',
+        inputs: [{ label: 'Tangentenlänge (cm)', key: 't', type: 'number' }],
+        validate: (vals) => Math.abs(vals.t - 12) < 0.01,
+        hints: ['Tipp: Tangente, Radius und Strecke MP bilden ein rechtwinkliges Dreieck.', 'Tipp: <span class=\'formula\'>t² + r² = d²</span>, also <span class=\'formula\'>t² + 5² = 13²</span>.', 'Tipp: <span class=\'formula\'>t² = 169 - 25 = 144</span>.'],
+        solution: [{ step: '<span class=\'formula\'>t² + r² = d²</span>', comment: 'Satz des Pythagoras im Tangentendreieck (Radius steht senkrecht auf der Tangente).' }, { step: '<span class=\'formula\'>t² + 25 = 169</span>', comment: 'Einsetzen von <span class=\'formula\'>r = 5</span> und <span class=\'formula\'>d = 13</span>.' }, { step: '<span class=\'formula\'>t² = 144 ⇒ t = 12</span> cm', comment: 'Wurzelziehen. 5-12-13 ist ein Pythagoreisches Tripel.' }],
+        answerDisplay: 't = 12 cm'
+      }, {
+        id: 'K5', title: 'NODE 05: Gemeinsame Tangente',
+        problem: '<strong>Szenario:</strong> Zwei Kreise haben Radien <span class="formula">r₁ = 8</span> cm und <span class="formula">r₂ = 3</span> cm. Ihr Mittelpunktsabstand beträgt <span class="formula">d = 13</span> cm.<br><strong>Mission:</strong> Berechne die Länge der gemeinsamen äußeren Tangente.',
+        inputs: [{ label: 'Tangentenlänge (cm)', key: 't', type: 'number' }],
+        validate: (vals) => Math.abs(vals.t - 12) < 0.01,
+        hints: ['Tipp: Zeichne ein rechtwinkliges Hilfsdreieck mit Katheten <span class=\'formula\'>t</span> und <span class=\'formula\'>(r₁ - r₂)</span> sowie Hypotenuse <span class=\'formula\'>d</span>.', 'Tipp: <span class=\'formula\'>t² + (8-3)² = 13²</span>.', 'Tipp: <span class=\'formula\'>t² + 25 = 169 ⇒ t² = 144</span>.'],
+        solution: [{ step: '<span class=\'formula\'>t² + (r₁ - r₂)² = d²</span>', comment: 'Satz des Pythagoras im Hilfsdreieck für die äußere Tangente.' }, { step: '<span class=\'formula\'>t² + (8 - 3)² = 13²</span>', comment: 'Einsetzen der Radien und des Abstands.' }, { step: '<span class=\'formula\'>t² + 25 = 169</span>', comment: '<span class=\'formula\'>5² = 25, 13² = 169</span>.' }, { step: '<span class=\'formula\'>t² = 144 ⇒ t = 12</span> cm', comment: 'Wurzelziehen. Wieder das 5-12-13-Tripel.' }],
+        answerDisplay: 't = 12 cm'
+      }]
+  }
+];
+
+
+/* ================= STATE & LOCALSTORAGE ================= */
+let state = loadState();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) { console.error('Load error', e); }
+  return {
+    currentTopic: null,
+    currentEx: 0,
+    completed: {},
+    answers: {},
+    hintsRevealed: {},
+    solutionsViewed: {},
+    topicDone: {}
+  };
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  } catch(e) { console.error('Save error', e); }
+}
+
+function resetAllProgress() {
+  if (!confirm('SYSTEM.RESET: Alle Fortschrittsdaten loeschen?')) return;
+  state = { currentTopic: null, currentEx: 0, completed: {}, answers: {}, hintsRevealed: {}, solutionsViewed: {}, topicDone: {} };
+  saveState();
+  renderTopics();
+}
+
+/* ================= NAVIGATION ================= */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showTopics() {
+  state.currentTopic = null;
+  saveState();
+  renderTopics();
+  showScreen('screen-topics');
+}
+
+function showExercise(topicId, exIndex) {
+  state.currentTopic = topicId;
+  state.currentEx = exIndex;
+  saveState();
+  renderExercise();
+  showScreen('screen-exercise');
+}
+
+function showComplete(topicId) {
+  renderComplete(topicId);
+  showScreen('screen-complete');
+}
+
+/* ================= RENDER TOPICS ================= */
+function renderTopics() {
+  const grid = document.getElementById('topic-grid');
+  grid.innerHTML = '';
+  TOPICS.forEach(t => {
+    const done = state.topicDone[t.id];
+    const completed = state.completed[t.id] || [false, false, false, false, false];
+    const progress = completed.filter(Boolean).length;
+    const card = document.createElement('div');
+    card.className = 'topic-card' + (done ? ' completed' : '');
+    card.style.borderColor = t.color;
+    card.innerHTML = `
+      <div class="t-icon" style="color:${t.color}">${t.id}</div>
+      <div class="t-name">${t.name}</div>
+      <div class="t-meta">${t.exercises.length} Nodes // ${done ? 'DECRYPTED' : progress + '/5'}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${(progress/5*100)}%"></div></div>
+    `;
+    card.onclick = () => {
+      if (done) {
+        showExercise(t.id, 0);
+      } else {
+        const firstUnsolved = completed.indexOf(false);
+        showExercise(t.id, firstUnsolved === -1 ? 0 : firstUnsolved);
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ================= RENDER EXERCISE ================= */
+function renderExercise() {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  const ex = topic.exercises[state.currentEx];
+  const completed = state.completed[topic.id] || [false, false, false, false, false];
+
+  document.getElementById('ex-topic-badge').textContent = topic.id + ' // ' + topic.name;
+  document.getElementById('ex-topic-badge').style.borderColor = topic.color;
+  document.getElementById('ex-topic-badge').style.color = topic.color;
+  document.getElementById('ex-title').textContent = ex.title;
+  document.getElementById('ex-title').style.color = topic.color;
+  document.getElementById('ex-badge').textContent = 'NODE ' + (state.currentEx + 1) + '/5';
+  document.getElementById('ex-problem').innerHTML = ex.problem;
+
+  const dots = document.getElementById('ex-progress');
+  dots.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const d = document.createElement('div');
+    d.className = 'progress-dot' + (i === state.currentEx ? ' active' : '') + (completed[i] ? ' done' : '');
+    dots.appendChild(d);
+  }
+
+  const inputsDiv = document.getElementById('ex-inputs');
+  inputsDiv.innerHTML = '';
+  ex.inputs.forEach((inp, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'input-group';
+    const saved = state.answers[`${topic.id}_${ex.id}_${inp.key}`];
+    wrap.innerHTML = `
+      <label>${inp.label}</label>
+      <input type="${inp.type}" id="inp-${inp.key}" value="${saved || ''}" placeholder="..." autocomplete="off">
+    `;
+    inputsDiv.appendChild(wrap);
+  });
+
+  const hintCount = state.hintsRevealed[`${topic.id}_${ex.id}`] || 0;
+  document.getElementById('hint-count').textContent = hintCount;
+  const hintsBox = document.getElementById('ex-hints');
+  hintsBox.innerHTML = '<h4>\u25ba SYSTEM DIAGNOSTICS</h4>';
+  ex.hints.forEach((h, i) => {
+    const div = document.createElement('div');
+    div.className = 'hint-item' + (i < hintCount ? ' revealed' : '');
+    div.innerHTML = (i < hintCount) ? h : '??? [VERSCHLUESSELT]';
+    div.style.opacity = i < hintCount ? '1' : '0.4';
+    hintsBox.appendChild(div);
+  });
+  hintsBox.classList.toggle('show', hintCount > 0);
+
+  document.getElementById('ex-feedback').classList.remove('show', 'ok', 'err');
+  document.getElementById('ex-feedback').textContent = '';
+}
+
+function showNextHint() {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  const ex = topic.exercises[state.currentEx];
+  const key = `${topic.id}_${ex.id}`;
+  const current = state.hintsRevealed[key] || 0;
+  if (current < ex.hints.length) {
+    state.hintsRevealed[key] = current + 1;
+    saveState();
+    renderExercise();
+  }
+}
+
+/* ================= CHECK ANSWER ================= */
+function checkAnswer() {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  const ex = topic.exercises[state.currentEx];
+  const vals = {};
+  ex.inputs.forEach(inp => {
+    const el = document.getElementById('inp-' + inp.key);
+    let v = el.value;
+    if (inp.type === 'number') v = parseFloat(v.replace(',', '.'));
+    vals[inp.key] = v;
+    state.answers[`${topic.id}_${ex.id}_${inp.key}`] = el.value;
+  });
+  saveState();
+
+  const fb = document.getElementById('ex-feedback');
+  const ok = ex.validate(vals);
+  fb.classList.remove('ok', 'err');
+  fb.classList.add('show', ok ? 'ok' : 'err');
+  fb.textContent = ok ? '\u2713 ZUGRIFF GEWAEHRT // NODE DECRYPTED' : '\u2717 FEHLER // ZUGRIFF VERWEIGERT';
+
+  if (ok) {
+    if (!state.completed[topic.id]) state.completed[topic.id] = [false, false, false, false, false];
+    state.completed[topic.id][state.currentEx] = true;
+    saveState();
+
+    if (state.completed[topic.id].every(Boolean)) {
+      state.topicDone[topic.id] = true;
+      saveState();
+      setTimeout(() => showComplete(topic.id), 800);
+    } else {
+      setTimeout(() => {
+        const next = state.completed[topic.id].indexOf(false);
+        if (next !== -1) showExercise(topic.id, next);
+      }, 1200);
+    }
+  }
+}
+
+/* ================= SOLUTION ================= */
+function showSolution() {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  const ex = topic.exercises[state.currentEx];
+  state.solutionsViewed[`${topic.id}_${ex.id}`] = true;
+  saveState();
+
+  document.getElementById('sol-title').textContent = 'LOESUNG // ' + ex.title;
+  const body = document.getElementById('sol-body');
+  body.innerHTML = '';
+
+  const ans = document.createElement('div');
+  ans.style.cssText = 'background:rgba(0,255,102,0.1); border:1px solid var(--accent-green); padding:12px; border-radius:6px; margin-bottom:20px; color:var(--accent-green); font-weight:bold;';
+  ans.innerHTML = 'ENDGUELTIGE ANTWORT: ' + ex.answerDisplay;
+  body.appendChild(ans);
+
+  ex.solution.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'sol-step';
+    div.innerHTML = `
+      <span class="step-num">SCHRITT ${i+1}</span>
+      <div>${s.step}</div>
+      <div class="sol-comment">\u25ba ${s.comment}</div>
+    `;
+    body.appendChild(div);
+  });
+
+  document.getElementById('solution-overlay').classList.add('show');
+}
+
+function closeSolution() {
+  document.getElementById('solution-overlay').classList.remove('show');
+}
+
+/* ================= COMPLETE SCREEN ================= */
+function renderComplete(topicId) {
+  const topic = TOPICS.find(t => t.id === topicId);
+  const summary = document.getElementById('complete-summary');
+  summary.innerHTML = `<strong style="color:${topic.color}">${topic.name}</strong><br><br>`;
+  topic.exercises.forEach((ex, i) => {
+    summary.innerHTML += `<div style="margin-bottom:8px;">\u2713 ${ex.title} // ${ex.answerDisplay}</div>`;
+  });
+}
+
+/* ================= PRINT ALL ================= */
+function printAllSolutions() {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  let html = `<html><head><title>Loesungen // ${topic.name}</title>
+    <style>
+      body { font-family: Georgia, serif; margin: 40px; color: #000; background: #fff; }
+      h1 { font-family: 'Courier New', monospace; color: #0a1628; border-bottom: 2px solid #0a1628; padding-bottom: 10px; }
+      h2 { font-family: 'Courier New', monospace; color: #2563eb; margin-top: 30px; }
+      .step { margin: 12px 0; padding-left: 16px; border-left: 3px solid #2563eb; }
+      .comment { font-style: italic; color: #555; font-size: 0.9rem; margin-top: 4px; }
+      .answer { background: #e8f5e9; padding: 10px; border-radius: 4px; font-weight: bold; margin: 10px 0; }
+    </style></head><body>
+    <h1>CYBERMATH // LOESUNGEN</h1>
+    <p><strong>Security Layer:</strong> ${topic.name}<br><strong>Datum:</strong> ${new Date().toLocaleDateString('de-DE')}</p>`;
+
+  topic.exercises.forEach(ex => {
+    html += `<h2>${ex.title}</h2>`;
+    html += `<div class="answer">Antwort: ${ex.answerDisplay}</div>`;
+    ex.solution.forEach((s, i) => {
+      html += `<div class="step">
+        <strong>Schritt ${i+1}:</strong> ${s.step}
+        <div class="comment">${s.comment}</div>
+      </div>`;
+    });
+  });
+  html += '</body></html>';
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 300);
+}
+
+/* ================= INIT ================= */
+renderTopics();
+
+if (state.currentTopic) {
+  const topic = TOPICS.find(t => t.id === state.currentTopic);
+  if (topic) {
+    const completed = state.completed[state.currentTopic] || [false, false, false, false, false];
+    if (completed.every(Boolean)) {
+      showComplete(state.currentTopic);
+    } else {
+      renderExercise();
+      showScreen('screen-exercise');
+    }
+  }
+}
+</script>
+</body>
+</html>
