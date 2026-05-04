@@ -212,7 +212,7 @@ const TOPICS = [
         id: 'P3', title: 'NODE 03: Kredit-Subroutine',
         problem: '<strong>Szenario:</strong> Du nimmst einen Notfall-Kredit über 6000 Credits auf. Rückzahlung in 12 Raten à 530 Credits.<br><strong>Mission:</strong> Berechne die Gesamtkosten und den prozentualen Aufschlag.',
         inputs: [{ label: 'Gesamtkosten (Credits)', key: 'cost', type: 'number' }, { label: 'Prozentualer Aufschlag (%)', key: 'pct', type: 'number' }],
-        validate: (vals) => Math.abs(vals.cost - 360) < 0.01 && Math.abs(vals.pct - 6) < 0.01,
+        validate: (vals) => Math.abs(vals.cost - 6360) < 0.01 && Math.abs(vals.pct - 6) < 0.01,
         hints: ['Tipp: Gesamtrückzahlung = Anzahl Raten · Ratenhöhe.', 'Tipp: Kreditkosten = Gesamtrückzahlung - Kreditsumme.', 'Tipp: Prozentualer Aufschlag = (Kosten / Kreditsumme) · 100.'],
         solution: [{ step: '<span class=\'formula\'>Gesamtrückzahlung = 12 · 530 = 6360</span> Credits', comment: 'Multiplikation der Raten.' }, { step: '<span class=\'formula\'>Kreditkosten = 6360 - 6000 = 360</span> Credits', comment: 'Differenz zur Kreditsumme.' }, { step: '<span class=\'formula\'>Prozentualer Aufschlag = (360 / 6000) · 100 % = 6 %</span>', comment: 'Prozentsatzberechnung.' }],
         answerDisplay: 'Kosten: 360 Credits, Aufschlag: 6 %'
@@ -298,10 +298,10 @@ const TOPICS = [
         answerDisplay: 'V = 264 cm³, O = 240 cm²'
       }, {
         id: 'G3', title: 'NODE 03: Dreiecksberechnung',
-        problem: '<strong>Szenario:</strong> Ein Navigations-Dreieck hat Seiten <span class="formula">a = 13 cm</span>, <span class="formula">b = 14 cm</span>, <span class="formula">c = 15 cm</span>.<br><strong>Mission:</strong> Berechne Winkel <span class="formula">β</span> mit dem Kosinussatz, Flächeninhalt mit Heron und Höhe <span class="formula">h<sub>b</sub></span>.',
+        problem: '<strong>Szenario:</strong> Ein Navigations-Dreieck hat Seiten <span class="formula">a = 13 cm</span>, <span class="formula">b = 14 cm</span>, <span class="formula">c = 15 cm</span>.<br><strong>Mission:</strong> Berechne Winkel <span class="formula">β</span> mit dem Kosinussatz, Flächeninhalt und Höhe <span class="formula">h<sub>b</sub></span>.',
         inputs: [{ label: 'Winkel β (°)', key: 'beta', type: 'number' }, { label: 'Flächeninhalt A (cm²)', key: 'A', type: 'number' }, { label: 'Höhe h<sub>b</sub> (cm)', key: 'hb', type: 'number' }],
         validate: (vals) => Math.abs(vals.beta - 59.5) < 1 && Math.abs(vals.A - 84) < 0.01 && Math.abs(vals.hb - 12) < 0.01,
-        hints: ['Tipp: Kosinussatz: <span class=\'formula\'>b² = a² + c² - 2ac·cos(β)</span>. Löse nach <span class=\'formula\'>cos(β)</span> auf.', 'Tipp: Heron: <span class=\'formula\'>s = (13+14+15)/2 = 21</span>. <span class=\'formula\'>A = √(21·8·7·6)</span>.', 'Tipp: <span class=\'formula\'>h<sub>b</sub> = 2A / b</span>.'],
+        hints: ['Tipp: Kosinussatz: <span class=\'formula\'>b² = a² + c² - 2ac·cos(β)</span>. Löse nach <span class=\'formula\'>cos(β)</span> auf.', 'Tipp: Schau ins Tafelwerk.</span>. <span class=\'formula\'>A = √(21·8·7·6)</span>.', 'Tipp: <span class=\'formula\'>h<sub>b</sub> = 2A / b</span>.'],
         solution: [{ step: '<span class=\'formula\'>cos(β) = (a² + c² - b²) / (2ac) = (169 + 225 - 196) / 390 = 198/390 = 33/65</span>', comment: 'Kosinussatz umgestellt. <span class=\'formula\'>198/390 = 0,5077</span>.' }, { step: '<span class=\'formula\'>β ≈ 59,5°</span>', comment: 'Arccos von 0,5077.' }, { step: '<span class=\'formula\'>s = (13+14+15)/2 = 21</span> cm', comment: 'Halber Umfang für Heron.' }, { step: '<span class=\'formula\'>A = √(21·8·7·6) = √7056 = 84</span> cm²', comment: 'Heronsche Formel. <span class=\'formula\'>21·8=168, 168·7=1176, 1176·6=7056</span>.' }, { step: '<span class=\'formula\'>h<sub>b</sub> = 2·84 / 14 = 12</span> cm', comment: 'Flächenformel <span class=\'formula\'>A = (b · h<sub>b</sub>)/2</span> umgestellt.' }],
         answerDisplay: 'β≈59,5°, A=84cm², h<sub>b</sub>=12cm'
       }, {
